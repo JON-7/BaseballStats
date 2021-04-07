@@ -17,7 +17,7 @@ class TeamStandingsVC: UIViewController {
     var nlCentralStanding = [DivisionStanding]()
     var nlWestStanding = [DivisionStanding]()
     
-    var segmentedControl = UISegmentedControl(items: ["Standings", "Leaders"])
+    var segmentedControl = UISegmentedControl(items: [SegmentView.standings, SegmentView.leaders])
     let leagueLeadersVC = LeagueLeadersVC()
     
     weak var collectionView: UICollectionView!

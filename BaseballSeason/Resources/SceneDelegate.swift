@@ -17,8 +17,14 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         window = UIWindow(frame: windowScene.coordinateSpace.bounds)
         window?.windowScene = windowScene
-        window?.rootViewController = LeagueLeadersVC()
+        window?.rootViewController = createNav()//LeagueLeadersVC()
         window?.makeKeyAndVisible()
+    }
+    
+    func createNav() -> UINavigationController {
+        let vc = LeagueLeadersVC()
+        let nav = UINavigationController(rootViewController: vc)
+        return nav
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {

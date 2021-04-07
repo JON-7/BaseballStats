@@ -24,10 +24,11 @@ class LeagueLeadersVC: UIViewController {
     var whipLeaders = [LeagueLeaders]()
     
     let leaderCell = LeadersCollectionCell()
-    var segmentedControl = UISegmentedControl(items: ["Standings", "Leaders"])
+    var segmentedControl = UISegmentedControl(items: [SegmentView.standings, SegmentView.leaders])
     
     override func viewWillAppear(_ animated: Bool) {
         segmentedControl.selectedSegmentIndex = 1
+        self.navigationController?.isNavigationBarHidden = true
     }
 
     override func viewDidLoad() {
@@ -160,6 +161,8 @@ extension LeagueLeadersVC: UICollectionViewDataSource, UICollectionViewDelegateF
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        
+        let vc = PlayerInfoVC()
+        vc.modalPresentationStyle = .fullScreen
+        navigationController?.pushViewController(vc, animated: true)
     }
 }

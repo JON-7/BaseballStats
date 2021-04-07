@@ -117,3 +117,9 @@ enum StatTitle {
     static let so = "Strikeouts"
     static let whip = "Whip"
 }
+
+enum SegmentView {
+    static let standings = "Standings"
+    static let leaders = "Leaders"
+    static let favorites = "Favorites"
+}
