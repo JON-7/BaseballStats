@@ -50,10 +50,10 @@ class PlayerInfoVC: UIViewController {
         DispatchQueue.global(qos: .background).async(group: dispatchGroup) {
             dispatchGroup.enter()
             
-            NetworkManager.shared.getPlayerInfo(playerName: self.playerName) { result in
+            PlayerNetworkManager.shared.getPlayerInfo(playerName: self.playerName) { [weak self] result in
                 switch result {
                 case .success(let data):
-                    self.playerIntro = data
+                    self?.playerIntro = data
                 case .failure(let error):
                     print(error)
                 }
@@ -64,10 +64,10 @@ class PlayerInfoVC: UIViewController {
         DispatchQueue.global(qos: .background).async(group: dispatchGroup) {
             dispatchGroup.enter()
             
-            NetworkManager.shared.getPlayerSeasonStats(playerID: self.playerID, statType: self.statType) { result in
+            PlayerNetworkManager.shared.getPlayerSeasonStats(playerID: self.playerID, statType: self.statType) { [weak self] result in
                 switch result {
                 case .success(let data):
-                    self.playerSeasonStats = data
+                    self?.playerSeasonStats = data
                 case .failure(let error):
                     print(error)
                 }
@@ -78,11 +78,10 @@ class PlayerInfoVC: UIViewController {
         DispatchQueue.global(qos: .background).async(group: dispatchGroup) {
             dispatchGroup.enter()
             
-            NetworkManager.shared.getPlayerCareerStats(playerID: self.playerID, statType: self.statType) { result in
+            PlayerNetworkManager.shared.getPlayerCareerStats(playerID: self.playerID, statType: self.statType) { [weak self] result in
                 switch result {
                 case .success(let data):
-                    print(data)
-                    self.playerCareerStats = data
+                    self?.playerCareerStats = data
                 case .failure(let error):
                     print(error)
                 }

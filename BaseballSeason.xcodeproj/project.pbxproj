@@ -15,7 +15,7 @@
 		FCEA7363261528560023592B /* StandingsCollectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCEA7362261528560023592B /* StandingsCollectionCell.swift */; };
 		FCEA73672615398F0023592B /* TeamStandingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCEA73662615398F0023592B /* TeamStandingView.swift */; };
 		FCEA736E26164E490023592B /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCEA736D26164E490023592B /* Constants.swift */; };
-		FCEA737526165B2B0023592B /* NetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCEA737426165B2B0023592B /* NetworkManager.swift */; };
+		FCEA737526165B2B0023592B /* PlayerNetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCEA737426165B2B0023592B /* PlayerNetworkManager.swift */; };
 		FCEA737826165C8C0023592B /* DivisionStandings.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCEA737726165C8C0023592B /* DivisionStandings.swift */; };
 		FCEA737C26165D130023592B /* ErrorMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCEA737B26165D130023592B /* ErrorMessage.swift */; };
 		FCEA7381261661D30023592B /* Teams.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCEA7380261661D30023592B /* Teams.swift */; };
@@ -37,6 +37,11 @@
 		FCFA6CB526228A49009B1911 /* HittingStats.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCFA6CB426228A49009B1911 /* HittingStats.swift */; };
 		FCFA6CC1262381CB009B1911 /* PitchingStats.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCFA6CC0262381CB009B1911 /* PitchingStats.swift */; };
 		FCFA6CCA2623BD6F009B1911 /* PlayerStats.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCFA6CC92623BD6F009B1911 /* PlayerStats.swift */; };
+		FCFA6CCF2623DA99009B1911 /* TeamInfoVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCFA6CCE2623DA99009B1911 /* TeamInfoVC.swift */; };
+		FCFA6CD32623F8F6009B1911 /* RosterCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCFA6CD22623F8F6009B1911 /* RosterCell.swift */; };
+		FCFA6CD7262402D7009B1911 /* TeamNetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCFA6CD6262402D7009B1911 /* TeamNetworkManager.swift */; };
+		FCFA6CDA2624057D009B1911 /* RosterInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCFA6CD92624057D009B1911 /* RosterInfo.swift */; };
+		FCFA6CDD262409C6009B1911 /* RosterResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCFA6CDC262409C6009B1911 /* RosterResponse.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -50,7 +55,7 @@
 		FCEA7362261528560023592B /* StandingsCollectionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StandingsCollectionCell.swift; sourceTree = "<group>"; };
 		FCEA73662615398F0023592B /* TeamStandingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TeamStandingView.swift; sourceTree = "<group>"; };
 		FCEA736D26164E490023592B /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
-		FCEA737426165B2B0023592B /* NetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkManager.swift; sourceTree = "<group>"; };
+		FCEA737426165B2B0023592B /* PlayerNetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerNetworkManager.swift; sourceTree = "<group>"; };
 		FCEA737726165C8C0023592B /* DivisionStandings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DivisionStandings.swift; sourceTree = "<group>"; };
 		FCEA737B26165D130023592B /* ErrorMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorMessage.swift; sourceTree = "<group>"; };
 		FCEA7380261661D30023592B /* Teams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Teams.swift; sourceTree = "<group>"; };
@@ -72,6 +77,11 @@
 		FCFA6CB426228A49009B1911 /* HittingStats.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HittingStats.swift; sourceTree = "<group>"; };
 		FCFA6CC0262381CB009B1911 /* PitchingStats.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PitchingStats.swift; sourceTree = "<group>"; };
 		FCFA6CC92623BD6F009B1911 /* PlayerStats.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerStats.swift; sourceTree = "<group>"; };
+		FCFA6CCE2623DA99009B1911 /* TeamInfoVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TeamInfoVC.swift; sourceTree = "<group>"; };
+		FCFA6CD22623F8F6009B1911 /* RosterCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RosterCell.swift; sourceTree = "<group>"; };
+		FCFA6CD6262402D7009B1911 /* TeamNetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TeamNetworkManager.swift; sourceTree = "<group>"; };
+		FCFA6CD92624057D009B1911 /* RosterInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RosterInfo.swift; sourceTree = "<group>"; };
+		FCFA6CDC262409C6009B1911 /* RosterResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RosterResponse.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -123,6 +133,7 @@
 				FCEA73002613B2EB0023592B /* TeamStandingsVC.swift */,
 				FCEA7389261830A70023592B /* LeagueLeadersVC.swift */,
 				FCEA73DA261BE1850023592B /* PlayerInfoVC.swift */,
+				FCFA6CCE2623DA99009B1911 /* TeamInfoVC.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -159,7 +170,8 @@
 		FCEA73092613B4080023592B /* Managers */ = {
 			isa = PBXGroup;
 			children = (
-				FCEA737426165B2B0023592B /* NetworkManager.swift */,
+				FCEA737426165B2B0023592B /* PlayerNetworkManager.swift */,
+				FCFA6CD6262402D7009B1911 /* TeamNetworkManager.swift */,
 			);
 			path = Managers;
 			sourceTree = "<group>";
@@ -188,6 +200,7 @@
 			children = (
 				FCEA7362261528560023592B /* StandingsCollectionCell.swift */,
 				FCEA73922618F46C0023592B /* LeadersCollectionCell.swift */,
+				FCFA6CD22623F8F6009B1911 /* RosterCell.swift */,
 			);
 			path = Cells;
 			sourceTree = "<group>";
@@ -223,6 +236,8 @@
 			children = (
 				FCEA737726165C8C0023592B /* DivisionStandings.swift */,
 				FCEA7380261661D30023592B /* Teams.swift */,
+				FCFA6CD92624057D009B1911 /* RosterInfo.swift */,
+				FCFA6CDC262409C6009B1911 /* RosterResponse.swift */,
 			);
 			path = Team;
 			sourceTree = "<group>";
@@ -312,15 +327,20 @@
 				FCEA7381261661D30023592B /* Teams.swift in Sources */,
 				FCEA737C26165D130023592B /* ErrorMessage.swift in Sources */,
 				FCEA73DE261BE5B40023592B /* PlayerIntroView.swift in Sources */,
-				FCEA737526165B2B0023592B /* NetworkManager.swift in Sources */,
+				FCEA737526165B2B0023592B /* PlayerNetworkManager.swift in Sources */,
 				FCEA72ED2613B2B80023592B /* SceneDelegate.swift in Sources */,
+				FCFA6CD32623F8F6009B1911 /* RosterCell.swift in Sources */,
 				FCEA7363261528560023592B /* StandingsCollectionCell.swift in Sources */,
 				FCEA738A261830A70023592B /* LeagueLeadersVC.swift in Sources */,
 				FCEA738D2618DCE20023592B /* Keys.swift in Sources */,
+				FCFA6CDA2624057D009B1911 /* RosterInfo.swift in Sources */,
+				FCFA6CD7262402D7009B1911 /* TeamNetworkManager.swift in Sources */,
 				FCEA73D2261B8E0A0023592B /* TeamStandings+Ext.swift in Sources */,
 				FCFA6CCA2623BD6F009B1911 /* PlayerStats.swift in Sources */,
 				FCFA6CC1262381CB009B1911 /* PitchingStats.swift in Sources */,
 				FCEA73E8261E46010023592B /* PlayerIntro.swift in Sources */,
+				FCFA6CCF2623DA99009B1911 /* TeamInfoVC.swift in Sources */,
+				FCFA6CDD262409C6009B1911 /* RosterResponse.swift in Sources */,
 				FCEA73E5261D563D0023592B /* SingleStatView.swift in Sources */,
 				FCEA736E26164E490023592B /* Constants.swift in Sources */,
 				FCEA73DB261BE1850023592B /* PlayerInfoVC.swift in Sources */,

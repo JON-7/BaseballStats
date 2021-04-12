@@ -7,73 +7,14 @@
 
 import UIKit
 
-class NetworkManager {
-    static let shared = NetworkManager()
-    let cache = NSCache<NSString, UIImage>()
+class PlayerNetworkManager {
+    static let shared = PlayerNetworkManager()
     
-    private let baseTeamInfoApiURL = "https://api-baseball.p.rapidapi.com/"
     private let playerInfoApiURL = "https://lookup-service-prod.mlb.com/json/named."
     let year = Calendar.current.component(.year, from: Date())
     
     private init(){}
-    
-    func getStandings(for division: String, completed: @escaping (Result<[DivisionStanding], ErrorMessage>) -> Void) {
-        
-        var endpoint = baseTeamInfoApiURL + "standings?league=1&season=\(year)&group=\(division)"
-        endpoint = endpoint.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
-        
-        guard let url = URL(string: endpoint) else {
-            completed(.failure(.noData))
-            return
-        }
-        print("BEING CALLED")
-        print(url)
-        var request = URLRequest(url: url, cachePolicy: .useProtocolCachePolicy, timeoutInterval: 10)
-        
-        let headers = [
-            "x-rapidapi-key": Keys.TeamAPIKey,
-            "x-rapidapi-host": "api-baseball.p.rapidapi.com"
-        ]
-        
-        request.allHTTPHeaderFields = headers
-        request.httpMethod = "GET"
 
-        URLSession.shared.dataTask(with: request) { data, responce, error in
-            
-            if let _ = error {
-                completed(.failure(.noData))
-                return
-            }
-            
-            guard let responce = responce as? HTTPURLResponse, responce.statusCode == 200 else {
-                completed(.failure(.noData))
-                return
-            }
-            guard let data = data else {
-                completed(.failure(.noData))
-                return
-            }
-            
-            guard let result = try? JSONDecoder().decode(Teams.self, from: data) else { return }
-            
-            var teamResults = [DivisionStanding]()
-            
-            for n in 0...4 {
-                let results = result.response.first![n]
-                let position = results.position
-                let teamName = results.team.name
-                let teamID = results.team.id
-                let wins = results.games.win.total
-                let loses = results.games.lose.total
-                let winPercentage = (Double(wins + loses) / Double(wins)) * 0.1
-                let standing = DivisionStanding(name: teamName, position: position, wins: wins, loses: loses, teamID: teamID, winPercentage: winPercentage)
-                teamResults.append(standing)
-            }
-            completed(.success(teamResults))
-        }.resume()
-    }
-    
-    
     func getLeagueLeaders(for stat: Stats, statType: StatType, completed: @escaping (Result<[LeagueLeaders], ErrorMessage>) -> Void) {
         
         func getStat(stat: Stats) -> String {
@@ -219,13 +160,11 @@ class NetworkManager {
             
             let decoder = JSONDecoder()
             decoder.keyDecodingStrategy = .convertFromSnakeCase
-            print("GETTING SOME PLAYER DATA")
             guard let result = try? decoder.decode(PlayerInfoResponse.self, from: data) else { return }
             let results = result.searchPlayerAll.queryResults.row
             let playerName = results.nameDisplayFirstLast
             let teamAbrv = results.teamAbbrev
             let position = results.position
-            let age = "30"
             let birthDate = results.birthDate
             let city = results.birthCity
             let state = results.birthState
@@ -234,10 +173,11 @@ class NetworkManager {
             let heightInches = results.heightInches
             let weight = results.weight
 
-            let playerInfo = PlayerIntro(playerName: playerName, teamAbrv: teamAbrv, position: position, age: age, birthDate: birthDate, birthState: state, birthCity: city, birthCountry: country, heightFeet: heightFeet, heightInches: heightInches, weight: weight)
+            let playerInfo = PlayerIntro(playerName: playerName, teamAbrv: teamAbrv, position: position, birthDate: birthDate, birthState: state, birthCity: city, birthCountry: country, heightFeet: heightFeet, heightInches: heightInches, weight: weight)
             completed(.success(playerInfo))
         }.resume()
     }
+    
     
     func getPlayerSeasonStats(playerID: String, statType: StatType, completed: @escaping (Result<PlayerStats, ErrorMessage>) -> Void) {
         var endpoint = playerInfoApiURL
@@ -278,19 +218,29 @@ class NetworkManager {
             
             
             if statType == .hitting {
-                guard let result = try? decoder.decode(HittingStats.self, from: data) else { return }
+                guard let result = try? decoder.decode(HittingStats.self, from: data) else {
+                    //MARK: If the player has no stats for the season all stats will show a zero
+                    let noHittingStats = PlayerStats(stat1: "0", stat2: "0", stat3: "0", stat4: "0", stat5: "0", stat6: "0", stat7: ".000", stat8: "0", stat9: ".000", stat10: ".000", stat11: ".000", stat12: "0")
+                    completed(.success(noHittingStats))
+                    return
+                }
                 let results = result.sportHittingTm.queryResults.row
                 let hitting = PlayerStats(stat1: results.ab, stat2: results.g, stat3: results.r, stat4: results.h, stat5: results.hr, stat6: results.rbi, stat7: results.avg, stat8: results.sb, stat9: results.obp, stat10: results.ops, stat11: results.slg, stat12: results.bb)
                 
                 completed(.success(hitting))
             } else {
-                guard let result = try? decoder.decode(PitchingStats.self, from: data) else { return }
+                guard let result = try? decoder.decode(PitchingStats.self, from: data) else {
+                    let noPitchingStats = PlayerStats(stat1: "0", stat2: "0", stat3: ".000", stat4: "0", stat5: "0", stat6: "0", stat7: ".000", stat8: "0", stat9: "0.00", stat10: "0", stat11: "0.00", stat12: "0.00")
+                    completed(.success(noPitchingStats))
+                    return
+                }
                 let results = result.sportPitchingTm.queryResults.row
                 let pitching = PlayerStats(stat1: results.w, stat2: results.l, stat3: results.wpct, stat4: results.g, stat5: results.ip, stat6: results.sv, stat7: results.era, stat8: results.so, stat9: results.whip, stat10: results.bb, stat11: results.h9, stat12: results.hr9)
                 completed(.success(pitching))
             }
         }.resume()
     }
+    
     
     func getPlayerCareerStats(playerID: String, statType: StatType, completed: @escaping (Result<PlayerStats, ErrorMessage>) -> Void) {
 
@@ -330,15 +280,22 @@ class NetworkManager {
             let decoder = JSONDecoder()
             decoder.keyDecodingStrategy = .convertFromSnakeCase
             
-            print(url)
             if statType == .hitting {
-                guard let result = try? decoder.decode(CareerHittingStats.self, from: data) else { return }
+                guard let result = try? decoder.decode(CareerHittingStats.self, from: data) else {
+                    let noHittingStats = PlayerStats(stat1: "0", stat2: "0", stat3: "0", stat4: "0", stat5: "0", stat6: "0", stat7: ".000", stat8: "0", stat9: ".000", stat10: ".000", stat11: ".000", stat12: "0")
+                    completed(.success(noHittingStats))
+                    return
+                }
                 let results = result.sportCareerHitting.queryResults.row
                 let hitting = PlayerStats(stat1: results.ab, stat2: results.g, stat3: results.r, stat4: results.h, stat5: results.hr, stat6: results.rbi, stat7: results.avg, stat8: results.sb, stat9: results.obp, stat10: results.ops, stat11: results.slg, stat12: results.bb)
 
                 completed(.success(hitting))
             } else {
-                guard let result = try? decoder.decode(CareerPitchingStats.self, from: data) else { return }
+                guard let result = try? decoder.decode(CareerPitchingStats.self, from: data) else {
+                    let noPitchingStats = PlayerStats(stat1: "0", stat2: "0", stat3: ".000", stat4: "0", stat5: "0", stat6: "0", stat7: ".000", stat8: "0", stat9: "0.00", stat10: "0", stat11: "0.00", stat12: "0.00")
+                    completed(.success(noPitchingStats))
+                    return
+                }
                 let results = result.sportCareerPitching.queryResults.row
                 let pitching = PlayerStats(stat1: results.w, stat2: results.l, stat3: results.wpct, stat4: results.g, stat5: results.ip, stat6: results.sv, stat7: results.era, stat8: results.so, stat9: results.whip, stat10: results.bb, stat11: results.h9, stat12: results.hr9)
                 completed(.success(pitching))

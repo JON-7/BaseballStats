@@ -28,17 +28,17 @@ struct SeasonQueryResults: Codable {
 }
 
 struct SeasonRow: Codable {
-    let avg: String
-    let ops: String
-    let ab: String
-    let g: String
-    let r: String
-    let h: String
-    let hr: String
-    let rbi: String
-    let sb: String
-    let obp: String
-    let slg: String
-    let bb: String
+    let avg: String?
+    let ops: String?
+    let ab: String?
+    let g: String?
+    let r: String?
+    let h: String?
+    let hr: String?
+    let rbi: String?
+    let sb: String?
+    let obp: String?
+    let slg: String?
+    let bb: String?
 }
 

@@ -11,7 +11,6 @@ struct PlayerIntro {
     var playerName: String
     var teamAbrv: String
     var position: String
-    var age: String
     var birthDate: String
     var birthState: String
     var birthCity: String

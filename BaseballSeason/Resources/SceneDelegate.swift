@@ -22,7 +22,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
     
     func createNav() -> UINavigationController {
-        let vc = LeagueLeadersVC()
+        let vc = TeamStandingsVC()
         let nav = UINavigationController(rootViewController: vc)
         return nav
     }

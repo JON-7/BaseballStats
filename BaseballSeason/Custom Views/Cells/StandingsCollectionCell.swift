@@ -29,8 +29,8 @@ class StandingsCollectionCell: UICollectionViewCell {
     
     func configureMainView(standings: [DivisionStanding], index: Int) {
         teamView.teamNameLabel.text = standings[index].name
-        teamView.logo.image = getLogoAndColor(teamName: standings[index].name).logo
-        teamView.backgroundColor = getLogoAndColor(teamName: standings[index].name).color
+        teamView.logo.image = getTeamInfo(teamName: standings[index].name).logo
+        teamView.backgroundColor = getTeamInfo(teamName: standings[index].name).color
         teamView.teamRecord.text = "\(standings[index].wins ) - \(standings[index].loses )"
         
         let difference = (standings[0].wins - standings[0].loses) - (standings[index].wins - standings[index].loses)

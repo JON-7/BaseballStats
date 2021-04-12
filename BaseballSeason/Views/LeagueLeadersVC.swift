@@ -70,7 +70,7 @@ class LeagueLeadersVC: UIViewController {
     @objc func viewDidChange(_ segmentedControl: UISegmentedControl) {
         switch segmentedControl.selectedSegmentIndex {
         case 0:
-            dismiss(animated: true)
+            navigationController?.popViewController(animated: true)
         case 1:
             print(segmentedControl.selectedSegmentIndex)
         default:
@@ -104,7 +104,7 @@ class LeagueLeadersVC: UIViewController {
                     hittingOrPitching = .pitching
                 }
                 
-                NetworkManager.shared.getLeagueLeaders(for: stat, statType: hittingOrPitching) { [weak self] result in
+                PlayerNetworkManager.shared.getLeagueLeaders(for: stat, statType: hittingOrPitching) { [weak self] result in
                     switch result {
                     case .success(let data):
                         // data is an array of league leaders

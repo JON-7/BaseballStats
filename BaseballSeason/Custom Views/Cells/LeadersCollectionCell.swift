@@ -33,8 +33,8 @@ class LeadersCollectionCell: UICollectionViewCell {
     func configureMain(leaders: LeagueLeaders) {
         statView.nameLabel.text = leaders.name
         statView.statLabel.text = leaders.stat
-        statView.logo.image = getLogoAndColor(teamName: leaders.teamName).logo
-        statView.backgroundColor = getLogoAndColor(teamName: leaders.teamName).color
+        statView.logo.image = getTeamInfo(teamName: leaders.teamName).logo
+        statView.backgroundColor = getTeamInfo(teamName: leaders.teamName).color
     }
     
     private func configureCell() {
