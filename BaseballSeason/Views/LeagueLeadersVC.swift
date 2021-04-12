@@ -50,6 +50,7 @@ class LeagueLeadersVC: UIViewController {
         collectionView.isScrollEnabled = false
         collectionView.dataSource = self
         collectionView.delegate = self
+        collectionView.allowsMultipleSelection = false
         collectionView.register(LeadersCollectionCell.self, forCellWithReuseIdentifier: LeadersCollectionCell.reuseID)
     }
     
@@ -164,5 +165,82 @@ extension LeagueLeadersVC: UICollectionViewDataSource, UICollectionViewDelegateF
         let vc = PlayerInfoVC()
         vc.modalPresentationStyle = .fullScreen
         navigationController?.pushViewController(vc, animated: true)
+
+        if indexPath.section == 0 {
+            vc.statType = .hitting
+
+            for n in 1...5 {
+                if indexPath.item == n {
+                    vc.playerName = hrLeaders[n-1].name
+                    vc.playerID = hrLeaders[n-1].playerID
+                }
+            }
+
+            for n in 7...11 {
+                if indexPath.item == n {
+                    vc.playerName = hitsLeaders[n-7].name
+                    vc.playerID = hitsLeaders[n-7].playerID
+                }
+            }
+
+            for n in 13...17 {
+                if indexPath.item == n {
+                    vc.playerName = avgLeaders[n-13].name
+                    vc.playerID = avgLeaders[n-13].playerID
+                }
+            }
+
+            for n in 19...23 {
+                if indexPath.item == n {
+                    vc.playerName = sbLeaders[n-19].name
+                    vc.playerID = sbLeaders[n-19].playerID
+                }
+            }
+
+            for n in 25...29 {
+                if indexPath.item == n {
+                    vc.playerName = rbiLeaders[n-25].name
+                    vc.playerID = rbiLeaders[n-25].playerID
+                }
+            }
+        }
+
+        if indexPath.section == 1 {
+            vc.statType = .pitching
+            for n in 1...5 {
+                if indexPath.item == n {
+                    vc.playerName = winLeaders[n-1].name
+                    vc.playerID = winLeaders[n-1].playerID
+                }
+            }
+
+            for n in 7...11 {
+                if indexPath.item == n {
+                    vc.playerName = eraLeaders[n-7].name
+                    vc.playerID = eraLeaders[n-7].playerID
+                }
+            }
+
+            for n in 13...17 {
+                if indexPath.item == n {
+                    vc.playerName = soLeaders[n-13].name
+                    vc.playerID = soLeaders[n-13].playerID
+                }
+            }
+
+            for n in 19...23 {
+                if indexPath.item == n {
+                    vc.playerName = svLeaders[n-19].name
+                    vc.playerID = svLeaders[n-19].playerID
+                }
+            }
+
+            for n in 25...29 {
+                if indexPath.item == n {
+                    vc.playerName = whipLeaders[n-25].name
+                    vc.playerID = whipLeaders[n-25].playerID
+                }
+            }
+        }
     }
 }

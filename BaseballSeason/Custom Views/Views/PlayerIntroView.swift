@@ -63,11 +63,41 @@ class PlayerIntroView: UIView {
         line3Label.topAnchor.constraint(equalTo: line2Label.bottomAnchor).isActive = true
     }
     
-    func set() {
-        nameLabel.text = "Aaron Judge"
-        line1Label.text = "Team: NYY  Position: RF  Age: 28"
-        line2Label.text = "Born: 04/26/1992 in CA, USA"
-        line3Label.text = "Height: 6'7  Weight: 282"
+    func set(playerInfo: PlayerIntro) {
+        let birthDay = formatDate(stringDate: playerInfo.birthDate)
+        let age = getPlayerAge(stringDate: playerInfo.birthDate)
+        
+        nameLabel.text = playerInfo.playerName
+        line1Label.text = "Team: \(playerInfo.teamAbrv)  Position: \(playerInfo.position)  Age: \(age)"
+        
+        if playerInfo.birthState == "" {
+            line2Label.text = "Born: \(birthDay) in \(playerInfo.birthCity ), \(playerInfo.birthCountry)"
+        } else {
+            line2Label.text = "Born: \(birthDay) in \(playerInfo.birthState ), \(playerInfo.birthCountry)"
+        }
+        
+        line3Label.text = "Height: \(playerInfo.heightFeet)'\(playerInfo.heightInches)  Weight: \(playerInfo.weight)"
     }
     
+    func formatDate(stringDate: String) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
+        
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "MMM dd, yyyy"
+        let date = formatter.date(from: stringDate)
+        return dateFormatter.string(from: date ?? Date())
+    }
+    
+    func getPlayerAge(stringDate: String) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
+
+        if let date = formatter.date(from: stringDate) {
+            let dateDiff = Calendar.current.dateComponents([.year], from: date, to: Date())
+            return String(dateDiff.year!)
+        } else {
+            return "years ago"
+        }
+    }
 }

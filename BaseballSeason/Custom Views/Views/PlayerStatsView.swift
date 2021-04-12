@@ -9,20 +9,21 @@ import UIKit
 
 class PlayerStatsView: UIView {
     
-    let typeLabel = UILabel()
+    let groupNameLabel = UILabel()
+    var statType: StatType!
     
-    let stat1 = SingleStatView(statTitle: "AB")
-    let stat2 = SingleStatView(statTitle: "G")
-    let stat3 = SingleStatView(statTitle: "R")
-    let stat4 = SingleStatView(statTitle: "H")
-    let stat5 = SingleStatView(statTitle: "HR")
-    let stat6 = SingleStatView(statTitle: "RBI")
-    let stat7 = SingleStatView(statTitle: "SB")
-    let stat8 = SingleStatView(statTitle: "AVG")
-    let stat9 = SingleStatView(statTitle: "OBP")
-    let stat10 = SingleStatView(statTitle: "OPS")
-    let stat11 = SingleStatView(statTitle: "SLG")
-    let stat12 = SingleStatView(statTitle: "BB")
+    let stat1 = SingleStatView()
+    let stat2 = SingleStatView()
+    let stat3 = SingleStatView()
+    let stat4 = SingleStatView()
+    let stat5 = SingleStatView()
+    let stat6 = SingleStatView()
+    let stat7 = SingleStatView()
+    let stat8 = SingleStatView()
+    let stat9 = SingleStatView()
+    let stat10 = SingleStatView()
+    let stat11 = SingleStatView()
+    let stat12 = SingleStatView()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -31,9 +32,9 @@ class PlayerStatsView: UIView {
         configureSecondRow()
     }
     
-    convenience init(typeOfGoal: String) {
+    convenience init(groupName: String) {
         self.init(frame: .zero)
-        typeLabel.text = typeOfGoal
+        groupNameLabel.text = groupName
     }
     
     required init?(coder: NSCoder) {
@@ -41,14 +42,14 @@ class PlayerStatsView: UIView {
     }
     
     func configureStatType() {
-        addSubview(typeLabel)
-        typeLabel.translatesAutoresizingMaskIntoConstraints = false
-        typeLabel.font = .systemFont(ofSize: 30, weight: .heavy)
+        addSubview(groupNameLabel)
+        groupNameLabel.translatesAutoresizingMaskIntoConstraints = false
+        groupNameLabel.font = .systemFont(ofSize: 30, weight: .heavy)
         
         NSLayoutConstraint.activate([
-            typeLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor),
-            typeLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-            typeLabel.heightAnchor.constraint(equalToConstant: 45)
+            groupNameLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor),
+            groupNameLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor),
+            groupNameLabel.heightAnchor.constraint(equalToConstant: 45)
         ])
     }
     
@@ -60,7 +61,7 @@ class PlayerStatsView: UIView {
             view.translatesAutoresizingMaskIntoConstraints = false
             
             NSLayoutConstraint.activate([
-                view.topAnchor.constraint(equalTo: typeLabel.bottomAnchor),
+                view.topAnchor.constraint(equalTo: groupNameLabel.bottomAnchor),
                 view.widthAnchor.constraint(equalToConstant: (UIScreen.main.bounds.width - 40)/6)
             ])
         }
@@ -90,12 +91,64 @@ class PlayerStatsView: UIView {
                 view.widthAnchor.constraint(equalToConstant: (UIScreen.main.bounds.width - 40)/6)
             ])
         }
-
+        
         stat7.leadingAnchor.constraint(equalTo: self.leadingAnchor).isActive = true
         stat8.leadingAnchor.constraint(equalTo: stat7.trailingAnchor).isActive = true
         stat9.leadingAnchor.constraint(equalTo: stat8.trailingAnchor).isActive = true
         stat10.leadingAnchor.constraint(equalTo: stat9.trailingAnchor).isActive = true
         stat11.leadingAnchor.constraint(equalTo: stat10.trailingAnchor).isActive = true
         stat12.leadingAnchor.constraint(equalTo: stat11.trailingAnchor).isActive = true
+    }
+    
+    
+    
+
+    func setHittingStats(stats: PlayerStats) {
+        let views = [stat1, stat2, stat3, stat4, stat5, stat6, stat7, stat8, stat9, stat10, stat11, stat12]
+        
+        let hittingTitles = ["AB", "G", "R", "H", "HR", "RBI", "AVG", "SB", "OBP", "OPS", "SLG", "BB"]
+        
+        var x = 0
+        for view in views {
+            view.statTitleLabel.text = hittingTitles[x]
+            x += 1
+        }
+        
+        stat1.statValueLabel.text = stats.stat1
+        stat2.statValueLabel.text = stats.stat2
+        stat3.statValueLabel.text = stats.stat3
+        stat4.statValueLabel.text = stats.stat4
+        stat5.statValueLabel.text = stats.stat5
+        stat6.statValueLabel.text = stats.stat6
+        stat7.statValueLabel.text = stats.stat7
+        stat8.statValueLabel.text = stats.stat8
+        stat9.statValueLabel.text = stats.stat9
+        stat10.statValueLabel.text = stats.stat10
+        stat11.statValueLabel.text = stats.stat11
+        stat12.statValueLabel.text = stats.stat12
+    }
+    
+    func setPitchingStats(stats: PlayerStats) {
+        let views = [stat1, stat2, stat3, stat4, stat5, stat6, stat7, stat8, stat9, stat10, stat11, stat12]
+        let pitchingTitles = ["W", "L", "W%", "G", "IP", "SV", "ERA", "SO", "WHIP", "BB", "H9", "HR9"]
+        
+        var x = 0
+        for view in views {
+            view.statTitleLabel.text = pitchingTitles[x]
+            x += 1
+        }
+        
+        stat1.statValueLabel.text = stats.stat1
+        stat2.statValueLabel.text = stats.stat2
+        stat3.statValueLabel.text = stats.stat3
+        stat4.statValueLabel.text = stats.stat4
+        stat5.statValueLabel.text = stats.stat5
+        stat6.statValueLabel.text = stats.stat6
+        stat7.statValueLabel.text = stats.stat7
+        stat8.statValueLabel.text = stats.stat8
+        stat9.statValueLabel.text = stats.stat9
+        stat10.statValueLabel.text = stats.stat10
+        stat11.statValueLabel.text = stats.stat11
+        stat12.statValueLabel.text = stats.stat12
     }
 }

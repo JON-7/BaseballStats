@@ -56,21 +56,23 @@ class NetworkManager {
             
             guard let result = try? JSONDecoder().decode(Teams.self, from: data) else { return }
             
-            var results = [DivisionStanding]()
+            var teamResults = [DivisionStanding]()
             
             for n in 0...4 {
-                let position = result.response.first![n].position
-                let teamName = result.response.first![n].team.name
-                let teamID = result.response.first![n].team.id
-                let wins = result.response.first![n].games.win.total
-                let loses = result.response.first![n].games.lose.total
+                let results = result.response.first![n]
+                let position = results.position
+                let teamName = results.team.name
+                let teamID = results.team.id
+                let wins = results.games.win.total
+                let loses = results.games.lose.total
                 let winPercentage = (Double(wins + loses) / Double(wins)) * 0.1
                 let standing = DivisionStanding(name: teamName, position: position, wins: wins, loses: loses, teamID: teamID, winPercentage: winPercentage)
-                results.append(standing)
+                teamResults.append(standing)
             }
-            completed(.success(results))
+            completed(.success(teamResults))
         }.resume()
     }
+    
     
     func getLeagueLeaders(for stat: Stats, statType: StatType, completed: @escaping (Result<[LeagueLeaders], ErrorMessage>) -> Void) {
         
@@ -152,6 +154,7 @@ class NetworkManager {
             for n in 0...4 {
                 let playerName = player.row[n].nameDisplayFirstLast
                 let teamName = player.row[n].teamName
+                let playerID = player.row[n].playerId
                 let playerStat: String
                 
                 switch stat {
@@ -177,10 +180,169 @@ class NetworkManager {
                     playerStat = (player.row[n].whip) ?? "0"
                 }
                 
-                results.append(LeagueLeaders(name: playerName , stat: playerStat, teamName: teamName))
+                results.append(LeagueLeaders(name: playerName , stat: playerStat, teamName: teamName, playerID: playerID))
             }
             completed(.success(results))
             
+        }.resume()
+    }
+    
+    
+    func getPlayerInfo(playerName: String, completed: @escaping (Result<PlayerIntro, ErrorMessage>) -> Void) {
+        var endpoint = playerInfoApiURL + "search_player_all.bam?sport_code='mlb'&active_sw='Y'&name_part='\(playerName)'"
+        endpoint = endpoint.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        
+        guard let url = URL(string: endpoint) else {
+            completed(.failure(.noData))
+            return
+        }
+        
+        var request = URLRequest(url: url, cachePolicy: .useProtocolCachePolicy, timeoutInterval: 10)
+        request.httpMethod = "GET"
+        
+        URLSession.shared.dataTask(with: request) { data, responce, error in
+            
+            if let _ = error {
+                completed(.failure(.noData))
+                return
+            }
+            
+            guard let responce = responce as? HTTPURLResponse, responce.statusCode == 200 else {
+                completed(.failure(.noData))
+                return
+            }
+            
+            guard let data = data else {
+                completed(.failure(.noData))
+                return
+            }
+            
+            let decoder = JSONDecoder()
+            decoder.keyDecodingStrategy = .convertFromSnakeCase
+            print("GETTING SOME PLAYER DATA")
+            guard let result = try? decoder.decode(PlayerInfoResponse.self, from: data) else { return }
+            let results = result.searchPlayerAll.queryResults.row
+            let playerName = results.nameDisplayFirstLast
+            let teamAbrv = results.teamAbbrev
+            let position = results.position
+            let age = "30"
+            let birthDate = results.birthDate
+            let city = results.birthCity
+            let state = results.birthState
+            let country = results.birthCountry
+            let heightFeet = results.heightFeet
+            let heightInches = results.heightInches
+            let weight = results.weight
+
+            let playerInfo = PlayerIntro(playerName: playerName, teamAbrv: teamAbrv, position: position, age: age, birthDate: birthDate, birthState: state, birthCity: city, birthCountry: country, heightFeet: heightFeet, heightInches: heightInches, weight: weight)
+            completed(.success(playerInfo))
+        }.resume()
+    }
+    
+    func getPlayerSeasonStats(playerID: String, statType: StatType, completed: @escaping (Result<PlayerStats, ErrorMessage>) -> Void) {
+        var endpoint = playerInfoApiURL
+        
+        if statType == .hitting {
+            endpoint = endpoint + "sport_hitting_tm.bam?league_list_id='mlb'&game_type='R'&season='\(year)'&player_id='\(playerID)'"
+        } else {
+            endpoint = endpoint + "sport_pitching_tm.bam?league_list_id='mlb'&game_type='R'&season='\(year)'&player_id='\(playerID)'"
+        }
+        
+        guard let url = URL(string: endpoint) else {
+            completed(.failure(.noData))
+            return
+        }
+        
+        var request = URLRequest(url: url, cachePolicy: .useProtocolCachePolicy, timeoutInterval: 10)
+        request.httpMethod = "GET"
+        
+        URLSession.shared.dataTask(with: request) { data, responce, error in
+            
+            if let _ = error {
+                completed(.failure(.noData))
+                return
+            }
+            
+            guard let responce = responce as? HTTPURLResponse, responce.statusCode == 200 else {
+                completed(.failure(.noData))
+                return
+            }
+            
+            guard let data = data else {
+                completed(.failure(.noData))
+                return
+            }
+            
+            let decoder = JSONDecoder()
+            decoder.keyDecodingStrategy = .convertFromSnakeCase
+            
+            
+            if statType == .hitting {
+                guard let result = try? decoder.decode(HittingStats.self, from: data) else { return }
+                let results = result.sportHittingTm.queryResults.row
+                let hitting = PlayerStats(stat1: results.ab, stat2: results.g, stat3: results.r, stat4: results.h, stat5: results.hr, stat6: results.rbi, stat7: results.avg, stat8: results.sb, stat9: results.obp, stat10: results.ops, stat11: results.slg, stat12: results.bb)
+                
+                completed(.success(hitting))
+            } else {
+                guard let result = try? decoder.decode(PitchingStats.self, from: data) else { return }
+                let results = result.sportPitchingTm.queryResults.row
+                let pitching = PlayerStats(stat1: results.w, stat2: results.l, stat3: results.wpct, stat4: results.g, stat5: results.ip, stat6: results.sv, stat7: results.era, stat8: results.so, stat9: results.whip, stat10: results.bb, stat11: results.h9, stat12: results.hr9)
+                completed(.success(pitching))
+            }
+        }.resume()
+    }
+    
+    func getPlayerCareerStats(playerID: String, statType: StatType, completed: @escaping (Result<PlayerStats, ErrorMessage>) -> Void) {
+
+        var endpoint = playerInfoApiURL
+        
+        if statType == .hitting {
+            endpoint = endpoint + "sport_career_hitting.bam?league_list_id='mlb'&game_type='R'&player_id='\(playerID)'"
+        } else {
+            endpoint = endpoint + "sport_career_pitching.bam?league_list_id='mlb'&game_type='R'&player_id='\(playerID)'"
+        }
+        
+        guard let url = URL(string: endpoint) else {
+            completed(.failure(.noData))
+            return
+        }
+        
+        var request = URLRequest(url: url, cachePolicy: .useProtocolCachePolicy, timeoutInterval: 10)
+        request.httpMethod = "GET"
+        
+        URLSession.shared.dataTask(with: request) { data, responce, error in
+            
+            if let _ = error {
+                completed(.failure(.noData))
+                return
+            }
+            
+            guard let responce = responce as? HTTPURLResponse, responce.statusCode == 200 else {
+                completed(.failure(.noData))
+                return
+            }
+            
+            guard let data = data else {
+                completed(.failure(.noData))
+                return
+            }
+            
+            let decoder = JSONDecoder()
+            decoder.keyDecodingStrategy = .convertFromSnakeCase
+            
+            print(url)
+            if statType == .hitting {
+                guard let result = try? decoder.decode(CareerHittingStats.self, from: data) else { return }
+                let results = result.sportCareerHitting.queryResults.row
+                let hitting = PlayerStats(stat1: results.ab, stat2: results.g, stat3: results.r, stat4: results.h, stat5: results.hr, stat6: results.rbi, stat7: results.avg, stat8: results.sb, stat9: results.obp, stat10: results.ops, stat11: results.slg, stat12: results.bb)
+
+                completed(.success(hitting))
+            } else {
+                guard let result = try? decoder.decode(CareerPitchingStats.self, from: data) else { return }
+                let results = result.sportCareerPitching.queryResults.row
+                let pitching = PlayerStats(stat1: results.w, stat2: results.l, stat3: results.wpct, stat4: results.g, stat5: results.ip, stat6: results.sv, stat7: results.era, stat8: results.so, stat9: results.whip, stat10: results.bb, stat11: results.h9, stat12: results.hr9)
+                completed(.success(pitching))
+            }
         }.resume()
     }
 }
