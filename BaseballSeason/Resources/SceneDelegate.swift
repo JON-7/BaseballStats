@@ -17,7 +17,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         window = UIWindow(frame: windowScene.coordinateSpace.bounds)
         window?.windowScene = windowScene
-        window?.rootViewController = createNav()//LeagueLeadersVC()
+        window?.rootViewController = createTabbar()
         window?.makeKeyAndVisible()
     }
     
@@ -25,6 +25,30 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let vc = TeamStandingsVC()
         let nav = UINavigationController(rootViewController: vc)
         return nav
+    }
+    
+    func createTabbar() -> UITabBarController {
+        let standingsVC = UINavigationController(rootViewController: TeamStandingsVC())
+        let leadersVC = UINavigationController(rootViewController: LeagueLeadersVC())
+        let favoritesVC = FavoritesVC()
+        let tabbar = UITabBarController()
+        
+        tabbar.setViewControllers([standingsVC, leadersVC, favoritesVC], animated: true)
+        tabbar.tabBar.backgroundColor = .clear
+        
+        let images = ["pencil", "pencil", "star.circle.fill"]
+        let titles = ["Standings", "Leaders", "Favorites"]
+        if let items = tabbar.tabBar.items {
+            for n in 0..<items.count {
+                items[n].image = UIImage(systemName: images[n])
+                items[n].title = titles[n]
+            }
+        }
+        
+        let tabbarItem1 = tabbar.tabBar.items![0]
+        tabbarItem1.image = UIImage(systemName: "pencil")
+        
+        return tabbar
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {

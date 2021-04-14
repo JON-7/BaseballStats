@@ -12,4 +12,5 @@ struct LeagueLeaders {
     let stat: String
     let teamName: String
     let playerID: String
+    let league: String
 }

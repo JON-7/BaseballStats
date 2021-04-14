@@ -40,9 +40,9 @@ extension UIViewController {
             section.orthogonalScrollingBehavior = .groupPagingCentered
             
             if sectionNumber == 0 {
-                section.contentInsets.top = 100
+                section.contentInsets.top = 90
             } else {
-                section.contentInsets.top = 15
+                section.contentInsets.top = 5
             }
             return section
         }

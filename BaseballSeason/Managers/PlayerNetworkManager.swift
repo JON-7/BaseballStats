@@ -47,9 +47,9 @@ class PlayerNetworkManager {
         var endpoint: String
         
         if statType == StatType.hitting {
-            endpoint = playerInfoApiURL + "leader_hitting_repeater.bam?results=5&season='\(year)'&sort_column='\(leadingStat)'"
+            endpoint = playerInfoApiURL + "leader_hitting_repeater.bam?results=50&season='\(year)'&sort_column='\(leadingStat)'"
         } else {
-            endpoint = playerInfoApiURL + "leader_pitching_repeater.bam?results=5&season='\(year)'&sort_column='\(leadingStat)'"
+            endpoint = playerInfoApiURL + "leader_pitching_repeater.bam?results=50&season='\(year)'&sort_column='\(leadingStat)'"
         }
         
         guard let url = URL(string: endpoint) else {
@@ -92,10 +92,11 @@ class PlayerNetworkManager {
             
             
         
-            for n in 0...4 {
+            for n in 0...49 {
                 let playerName = player.row[n].nameDisplayFirstLast
                 let teamName = player.row[n].teamName
                 let playerID = player.row[n].playerId
+                let league = player.row[n].league
                 let playerStat: String
                 
                 switch stat {
@@ -121,7 +122,7 @@ class PlayerNetworkManager {
                     playerStat = (player.row[n].whip) ?? "0"
                 }
                 
-                results.append(LeagueLeaders(name: playerName , stat: playerStat, teamName: teamName, playerID: playerID))
+                results.append(LeagueLeaders(name: playerName , stat: playerStat, teamName: teamName, playerID: playerID, league: league))
             }
             completed(.success(results))
             

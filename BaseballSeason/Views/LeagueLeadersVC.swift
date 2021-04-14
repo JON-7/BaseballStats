@@ -12,22 +12,33 @@ class LeagueLeadersVC: UIViewController {
     weak var collectionView: UICollectionView!
     
     var hitsLeaders = [LeagueLeaders]()
+    var hitsLeadersMain = [LeagueLeaders]()
     var hrLeaders = [LeagueLeaders]()
+    var hrLeadersMain = [LeagueLeaders]()
     var avgLeaders = [LeagueLeaders]()
+    var avgLeadersMain = [LeagueLeaders]()
     var sbLeaders = [LeagueLeaders]()
+    var sbLeadersMain = [LeagueLeaders]()
     var rbiLeaders = [LeagueLeaders]()
+    var rbiLeadersMain = [LeagueLeaders]()
     
     var soLeaders = [LeagueLeaders]()
+    var soLeadersMain = [LeagueLeaders]()
     var winLeaders = [LeagueLeaders]()
+    var winLeadersMain = [LeagueLeaders]()
     var svLeaders = [LeagueLeaders]()
+    var svLeadersMain = [LeagueLeaders]()
     var eraLeaders = [LeagueLeaders]()
+    var eraLeadersMain = [LeagueLeaders]()
     var whipLeaders = [LeagueLeaders]()
+    var whipLeadersMain = [LeagueLeaders]()
     
     let leaderCell = LeadersCollectionCell()
-    var segmentedControl = UISegmentedControl(items: [SegmentView.standings, SegmentView.leaders])
+    //var segmentedControl = UISegmentedControl(items: [SegmentView.standings, SegmentView.leaders])
+    var segmentedControl = UISegmentedControl(items: ["MLB","AL","NL"])
     
     override func viewWillAppear(_ animated: Bool) {
-        segmentedControl.selectedSegmentIndex = 1
+        segmentedControl.selectedSegmentIndex = 0
         self.navigationController?.isNavigationBarHidden = true
     }
 
@@ -37,7 +48,6 @@ class LeagueLeadersVC: UIViewController {
         //configureSegmentedControl()
         getData()
     }
-    
     
     
     func configureCollectionView() {
@@ -58,7 +68,6 @@ class LeagueLeadersVC: UIViewController {
         segmentedControl.addTarget(self, action: #selector(viewDidChange), for: .valueChanged)
         view.addSubview(segmentedControl)
         segmentedControl.translatesAutoresizingMaskIntoConstraints = false
-        segmentedControl.selectedSegmentIndex = 1
         
         NSLayoutConstraint.activate([
             segmentedControl.leadingAnchor.constraint(equalTo: view.layoutMarginsGuide.leadingAnchor, constant: 40),
@@ -70,13 +79,68 @@ class LeagueLeadersVC: UIViewController {
     @objc func viewDidChange(_ segmentedControl: UISegmentedControl) {
         switch segmentedControl.selectedSegmentIndex {
         case 0:
-            navigationController?.popViewController(animated: true)
+            DispatchQueue.main.async {
+                self.hrLeaders = self.hrLeadersMain
+                self.avgLeaders = self.avgLeadersMain
+                self.rbiLeaders = self.rbiLeadersMain
+                self.sbLeaders = self.sbLeadersMain
+                self.hitsLeaders = self.hitsLeadersMain
+                
+                self.winLeaders = self.winLeadersMain
+                self.eraLeaders = self.eraLeadersMain
+                self.svLeaders = self.svLeadersMain
+                self.soLeaders = self.soLeadersMain
+                self.collectionView.reloadData()
+            }
         case 1:
-            print(segmentedControl.selectedSegmentIndex)
+            setLeaders(for: "AL")
+        case 2:
+            setLeaders(for: "NL")
         default:
             break
         }
     }
+    
+    private func setLeaders(for league: String) {
+        DispatchQueue.main.async {
+            self.hrLeaders = self.getLeagueLeaders(leagueLeaders: self.hrLeaders, for: league)
+            self.avgLeaders = self.getLeagueLeaders(leagueLeaders: self.avgLeaders, for: league)
+            self.rbiLeaders = self.getLeagueLeaders(leagueLeaders: self.rbiLeaders, for: league)
+            self.sbLeaders = self.getLeagueLeaders(leagueLeaders: self.sbLeaders, for: league)
+            self.hitsLeaders = self.getLeagueLeaders(leagueLeaders: self.hitsLeaders, for: league)
+            
+            self.winLeaders = self.getLeagueLeaders(leagueLeaders: self.winLeaders, for: league)
+            self.eraLeaders = self.getLeagueLeaders(leagueLeaders: self.eraLeaders, for: league)
+            self.svLeaders = self.getLeagueLeaders(leagueLeaders: self.svLeaders, for: league)
+            self.soLeaders = self.getLeagueLeaders(leagueLeaders: self.soLeaders, for: league)
+            self.whipLeaders = self.getLeagueLeaders(leagueLeaders: self.whipLeaders, for: league)
+            self.collectionView.reloadData()
+        }
+        self.hrLeaders = self.hrLeadersMain
+        self.avgLeaders = self.avgLeadersMain
+        self.rbiLeaders = self.rbiLeadersMain
+        self.sbLeaders = self.sbLeadersMain
+        self.hitsLeaders = self.hitsLeadersMain
+        
+        self.winLeaders = self.winLeadersMain
+        self.eraLeaders = self.eraLeadersMain
+        self.svLeaders = self.svLeadersMain
+        self.soLeaders = self.soLeadersMain
+        self.whipLeaders = self.whipLeadersMain
+    }
+    
+    
+    private func getLeagueLeaders(leagueLeaders: [LeagueLeaders], for league: String) -> [LeagueLeaders]{
+        var leaders = [LeagueLeaders]()
+        // 
+        for n in 0..<leagueLeaders.count {
+            if leagueLeaders[n].league == league {
+                leaders.append(leagueLeaders[n])
+            }
+        }
+        return leaders
+    }
+        
     
     func getData() {
         let dispatchGroup = DispatchGroup()
@@ -111,24 +175,34 @@ class LeagueLeadersVC: UIViewController {
                         switch stat {
                         case .avg:
                             self?.avgLeaders = data
+                            self?.avgLeadersMain = data
                         case .sb:
                             self?.sbLeaders = data
+                            self?.sbLeadersMain = data
                         case .hr:
                             self?.hrLeaders = data
+                            self?.hrLeadersMain = data
                         case .rbi:
                             self?.rbiLeaders = data
+                            self?.rbiLeadersMain = data
                         case .hits:
                             self?.hitsLeaders = data
+                            self?.hitsLeadersMain = data
                         case .era:
                             self?.eraLeaders = data
+                            self?.eraLeadersMain = data
                         case .wins:
                             self?.winLeaders = data
+                            self?.winLeadersMain = data
                         case .saves:
                             self?.svLeaders = data
+                            self?.svLeadersMain = data
                         case .so:
                             self?.soLeaders = data
+                            self?.soLeadersMain = data
                         case .whip:
                             self?.whipLeaders = data
+                            self?.whipLeadersMain = data
                         }
                     case .failure(let error):
                         // TODO: Add alert action displaying error

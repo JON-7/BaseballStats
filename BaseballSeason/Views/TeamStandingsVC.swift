@@ -23,13 +23,11 @@ class TeamStandingsVC: UIViewController {
     weak var collectionView: UICollectionView!
     
     override func viewWillAppear(_ animated: Bool) {
-        segmentedControl.selectedSegmentIndex = 0
         self.navigationController?.isNavigationBarHidden = true
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        NotificationCenter.default.post(name: Notification.Name("getLeadersNotif"), object: nil)
         getData()
     }
     
@@ -74,7 +72,7 @@ class TeamStandingsVC: UIViewController {
         
         dispatchGroup.notify(queue: .main) {
             self.configureCollectionView()
-            self.configureSegmentedControl()
+            //self.configureSegmentedControl()
             self.removeSpinner()
         }
     }
@@ -113,7 +111,7 @@ class TeamStandingsVC: UIViewController {
         view.addSubview(cv)
         
         collectionView = cv
-        collectionView.backgroundColor = .lightGray
+        collectionView.backgroundColor = #colorLiteral(red: 0.2549019754, green: 0.2745098174, blue: 0.3019607961, alpha: 1)
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.register(StandingsCollectionCell.self, forCellWithReuseIdentifier: StandingsCollectionCell.reuseID)
@@ -134,6 +132,7 @@ extension TeamStandingsVC: UICollectionViewDataSource, UICollectionViewDelegateF
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let vc = TeamInfoVC()
+        vc.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(vc, animated: true)
         
         

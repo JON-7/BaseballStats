@@ -178,7 +178,7 @@ extension TeamInfoVC: UICollectionViewDelegateFlowLayout, UICollectionViewDataSo
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         //MARK: When a cell is pressed the playerInfo screen is displayed
-        for n in 0..<fullRoster.count-1 {
+        for n in 0..<fullRoster.count {
             if indexPath.item == n {
                 let vc = PlayerInfoVC()
                 vc.playerID = fullRoster[n].playerID

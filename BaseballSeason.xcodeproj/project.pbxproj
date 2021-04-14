@@ -42,6 +42,7 @@
 		FCFA6CD7262402D7009B1911 /* TeamNetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCFA6CD6262402D7009B1911 /* TeamNetworkManager.swift */; };
 		FCFA6CDA2624057D009B1911 /* RosterInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCFA6CD92624057D009B1911 /* RosterInfo.swift */; };
 		FCFA6CDD262409C6009B1911 /* RosterResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCFA6CDC262409C6009B1911 /* RosterResponse.swift */; };
+		FCFA6CE0262632F0009B1911 /* FavoritesVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCFA6CDF262632F0009B1911 /* FavoritesVC.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -82,6 +83,7 @@
 		FCFA6CD6262402D7009B1911 /* TeamNetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TeamNetworkManager.swift; sourceTree = "<group>"; };
 		FCFA6CD92624057D009B1911 /* RosterInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RosterInfo.swift; sourceTree = "<group>"; };
 		FCFA6CDC262409C6009B1911 /* RosterResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RosterResponse.swift; sourceTree = "<group>"; };
+		FCFA6CDF262632F0009B1911 /* FavoritesVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoritesVC.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -134,6 +136,7 @@
 				FCEA7389261830A70023592B /* LeagueLeadersVC.swift */,
 				FCEA73DA261BE1850023592B /* PlayerInfoVC.swift */,
 				FCFA6CCE2623DA99009B1911 /* TeamInfoVC.swift */,
+				FCFA6CDF262632F0009B1911 /* FavoritesVC.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -317,6 +320,7 @@
 				FCEA73902618F2770023592B /* LeagueLeadersView.swift in Sources */,
 				FCEA73932618F46C0023592B /* LeadersCollectionCell.swift in Sources */,
 				FCEA73012613B2EB0023592B /* TeamStandingsVC.swift in Sources */,
+				FCFA6CE0262632F0009B1911 /* FavoritesVC.swift in Sources */,
 				FCEA73E2261D54E30023592B /* PlayerStatsView.swift in Sources */,
 				FCEA73CF261ACA690023592B /* LeagueLeaders+Ext.swift in Sources */,
 				FCEA7387261813CF0023592B /* UIViewController+Ext.swift in Sources */,

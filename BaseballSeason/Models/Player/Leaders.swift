@@ -38,6 +38,7 @@ struct Row: Codable {
     let nameDisplayFirstLast: String
     let teamName: String
     let playerId: String
+    let league: String
     
     let so: String?
     let w: String?
