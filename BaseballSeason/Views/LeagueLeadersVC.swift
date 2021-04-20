@@ -34,18 +34,18 @@ class LeagueLeadersVC: UIViewController {
     var whipLeadersMain = [LeagueLeaders]()
     
     let leaderCell = LeadersCollectionCell()
-    //var segmentedControl = UISegmentedControl(items: [SegmentView.standings, SegmentView.leaders])
     var segmentedControl = UISegmentedControl(items: ["MLB","AL","NL"])
+    
+    var isFavorite = false
     
     override func viewWillAppear(_ animated: Bool) {
         segmentedControl.selectedSegmentIndex = 0
-        self.navigationController?.isNavigationBarHidden = true
+        navigationController?.isNavigationBarHidden = true
+        tabBarController?.tabBar.isHidden = false
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        //configureCollectionView()
-        //configureSegmentedControl()
         getData()
     }
     
@@ -72,7 +72,7 @@ class LeagueLeadersVC: UIViewController {
         NSLayoutConstraint.activate([
             segmentedControl.leadingAnchor.constraint(equalTo: view.layoutMarginsGuide.leadingAnchor, constant: 40),
             segmentedControl.trailingAnchor.constraint(equalTo: view.layoutMarginsGuide.trailingAnchor, constant: -40),
-            segmentedControl.topAnchor.constraint(equalTo: view.layoutMarginsGuide.topAnchor, constant: 10),
+            segmentedControl.topAnchor.constraint(equalTo: view.layoutMarginsGuide.topAnchor),
         ])
     }
     
@@ -242,7 +242,7 @@ extension LeagueLeadersVC: UICollectionViewDataSource, UICollectionViewDelegateF
 
         if indexPath.section == 0 {
             vc.statType = .hitting
-
+            vc.isPitcher = false
             for n in 1...5 {
                 if indexPath.item == n {
                     vc.playerName = hrLeaders[n-1].name
@@ -280,6 +280,7 @@ extension LeagueLeadersVC: UICollectionViewDataSource, UICollectionViewDelegateF
         }
 
         if indexPath.section == 1 {
+            vc.isPitcher = true
             vc.statType = .pitching
             for n in 1...5 {
                 if indexPath.item == n {

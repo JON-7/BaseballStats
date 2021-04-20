@@ -123,3 +123,14 @@ enum SegmentView {
     static let leaders = "Leaders"
     static let favorites = "Favorites"
 }
+
+enum SFNames {
+    static let star = "star"
+    static let fullStar = "star.fill"
+    static let favorite = "star.circle.fill"
+    
+}
+
+enum NotificationNames {
+    static let reloadFavoriteTable = "newDataNotif"
+}

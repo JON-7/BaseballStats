@@ -14,6 +14,8 @@ class PlayerNetworkManager {
     let year = Calendar.current.component(.year, from: Date())
     
     private init(){}
+    
+    var favorites = [FavoritePlayers]()
 
     func getLeagueLeaders(for stat: Stats, statType: StatType, completed: @escaping (Result<[LeagueLeaders], ErrorMessage>) -> Void) {
         

@@ -12,4 +12,5 @@ struct RosterInfo {
     let name: String
     let number: String
     let playerID: String
+    let lastNameFirstName: String
 }

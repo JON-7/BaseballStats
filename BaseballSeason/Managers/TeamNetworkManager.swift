@@ -105,7 +105,7 @@ class TeamNetworkManager {
             
             for n in 0..<total {
                 let results = result.roster40.queryResults.row[n]
-                let player = RosterInfo(position: results.positionTxt, name: results.nameDisplayFirstLast, number: results.jerseyNumber, playerID: results.playerId)
+                let player = RosterInfo(position: results.positionTxt, name: results.nameDisplayFirstLast, number: results.jerseyNumber, playerID: results.playerId, lastNameFirstName: results.nameDisplayLastFirst)
                 roster.append(player)
             }
             

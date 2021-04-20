@@ -25,4 +25,5 @@ struct RosterRow: Codable {
     let jerseyNumber: String
     let nameDisplayFirstLast: String
     let playerId: String
+    let nameDisplayLastFirst: String
 }

@@ -21,20 +21,15 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window?.makeKeyAndVisible()
     }
     
-    func createNav() -> UINavigationController {
-        let vc = TeamStandingsVC()
-        let nav = UINavigationController(rootViewController: vc)
-        return nav
-    }
-    
     func createTabbar() -> UITabBarController {
         let standingsVC = UINavigationController(rootViewController: TeamStandingsVC())
         let leadersVC = UINavigationController(rootViewController: LeagueLeadersVC())
-        let favoritesVC = FavoritesVC()
+        let favoritesVC = UINavigationController(rootViewController: FavoritesVC())
         let tabbar = UITabBarController()
         
         tabbar.setViewControllers([standingsVC, leadersVC, favoritesVC], animated: true)
-        tabbar.tabBar.backgroundColor = .clear
+        tabbar.tabBar.backgroundColor = .white
+        
         
         let images = ["pencil", "pencil", "star.circle.fill"]
         let titles = ["Standings", "Leaders", "Favorites"]

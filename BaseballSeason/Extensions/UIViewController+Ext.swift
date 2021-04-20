@@ -28,8 +28,9 @@ extension UIViewController {
     }
     
     func configureCollectionLayout() -> UICollectionViewCompositionalLayout {
+        let itemHeight = (view.bounds.height * 0.44) / 7
         let layout = UICollectionViewCompositionalLayout { sectionNumber, env -> NSCollectionLayoutSection? in
-            let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .absolute(50)))
+            let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .absolute(itemHeight)))
             
             let nestedGroup = NSCollectionLayoutGroup.vertical(layoutSize: .init(widthDimension: .fractionalWidth(0.95), heightDimension: .fractionalHeight(1)), subitems: [item])
             
@@ -42,7 +43,7 @@ extension UIViewController {
             if sectionNumber == 0 {
                 section.contentInsets.top = 90
             } else {
-                section.contentInsets.top = 5
+                //section.contentInsets.top = 5
             }
             return section
         }

@@ -155,18 +155,18 @@ extension TeamInfoVC: UICollectionViewDelegateFlowLayout, UICollectionViewDataSo
             cell.layer.cornerRadius = 16
             cell.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
             
-            cell.set(playerName: fullRoster[0].name, playerNumber: fullRoster[0].number, position: fullRoster[0].position)
+            cell.set(playerName: fullRoster[0].lastNameFirstName, playerNumber: fullRoster[0].number, position: fullRoster[0].position)
         } else if indexPath.item == fullRoster.count-1 {
             cell.layer.cornerRadius = 16
             cell.layer.maskedCorners = [.layerMinXMaxYCorner, .layerMaxXMaxYCorner ]
             
-            cell.set(playerName: fullRoster[total].name, playerNumber: fullRoster[total].number, position: fullRoster[total].position)
+            cell.set(playerName: fullRoster[total].lastNameFirstName, playerNumber: fullRoster[total].number, position: fullRoster[total].position)
         }
         
         // configuring the rest of the cells
         for n in 1..<total {
             if indexPath.item == n {
-                cell.set(playerName: fullRoster[n].name, playerNumber: fullRoster[n].number, position: fullRoster[n].position)
+                cell.set(playerName: fullRoster[n].lastNameFirstName, playerNumber: fullRoster[n].number, position: fullRoster[n].position)
                 cell.layer.cornerRadius = 0
             }
         }

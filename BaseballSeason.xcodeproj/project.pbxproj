@@ -43,6 +43,7 @@
 		FCFA6CDA2624057D009B1911 /* RosterInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCFA6CD92624057D009B1911 /* RosterInfo.swift */; };
 		FCFA6CDD262409C6009B1911 /* RosterResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCFA6CDC262409C6009B1911 /* RosterResponse.swift */; };
 		FCFA6CE0262632F0009B1911 /* FavoritesVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCFA6CDF262632F0009B1911 /* FavoritesVC.swift */; };
+		FCFA6CE32627492C009B1911 /* FavoritePlayers.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCFA6CE22627492C009B1911 /* FavoritePlayers.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -84,6 +85,7 @@
 		FCFA6CD92624057D009B1911 /* RosterInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RosterInfo.swift; sourceTree = "<group>"; };
 		FCFA6CDC262409C6009B1911 /* RosterResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RosterResponse.swift; sourceTree = "<group>"; };
 		FCFA6CDF262632F0009B1911 /* FavoritesVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoritesVC.swift; sourceTree = "<group>"; };
+		FCFA6CE22627492C009B1911 /* FavoritePlayers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoritePlayers.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -230,6 +232,7 @@
 				FCFA6CB426228A49009B1911 /* HittingStats.swift */,
 				FCFA6CC0262381CB009B1911 /* PitchingStats.swift */,
 				FCEA7398261915490023592B /* LeagueLeaders.swift */,
+				FCFA6CE22627492C009B1911 /* FavoritePlayers.swift */,
 			);
 			path = Player;
 			sourceTree = "<group>";
@@ -337,6 +340,7 @@
 				FCEA7363261528560023592B /* StandingsCollectionCell.swift in Sources */,
 				FCEA738A261830A70023592B /* LeagueLeadersVC.swift in Sources */,
 				FCEA738D2618DCE20023592B /* Keys.swift in Sources */,
+				FCFA6CE32627492C009B1911 /* FavoritePlayers.swift in Sources */,
 				FCFA6CDA2624057D009B1911 /* RosterInfo.swift in Sources */,
 				FCFA6CD7262402D7009B1911 /* TeamNetworkManager.swift in Sources */,
 				FCEA73D2261B8E0A0023592B /* TeamStandings+Ext.swift in Sources */,

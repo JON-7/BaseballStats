@@ -7,8 +7,6 @@
 
 import UIKit
 
-// ADD height -> weight -> country
-
 class PlayerIntroView: UIView {
     
     let nameLabel = UILabel()
@@ -34,10 +32,9 @@ class PlayerIntroView: UIView {
         nameLabel.font = .preferredFont(forTextStyle: .largeTitle)
         
         NSLayoutConstraint.activate([
-            nameLabel.topAnchor.constraint(equalTo: self.topAnchor, constant: 20),
+            nameLabel.topAnchor.constraint(equalTo: self.topAnchor),
             nameLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor),
             nameLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-            nameLabel.heightAnchor.constraint(equalToConstant: 40)
         ])
     }
     
@@ -54,29 +51,37 @@ class PlayerIntroView: UIView {
             NSLayoutConstraint.activate([
                 view.leadingAnchor.constraint(equalTo: self.leadingAnchor),
                 view.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-                view.heightAnchor.constraint(equalToConstant: 40)
             ])
         }
         
-        line1Label.topAnchor.constraint(equalTo: nameLabel.bottomAnchor).isActive = true
-        line2Label.topAnchor.constraint(equalTo: line1Label.bottomAnchor).isActive = true
-        line3Label.topAnchor.constraint(equalTo: line2Label.bottomAnchor).isActive = true
+        line1Label.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 10).isActive = true
+        line2Label.topAnchor.constraint(equalTo: line1Label.bottomAnchor, constant: 10).isActive = true
+        line3Label.topAnchor.constraint(equalTo: line2Label.bottomAnchor, constant: 10).isActive = true
+        
+        line2Label.numberOfLines = 0
+        line2Label.lineBreakMode = .byWordWrapping
+        line1Label.font = .systemFont(ofSize: 23, weight: .medium)
+        line2Label.font = .systemFont(ofSize: 23, weight: .medium)
+        line3Label.font = .systemFont(ofSize: 23, weight: .medium)
+        
+        line1Label.adjustsFontForContentSizeCategory = true
     }
     
     func set(playerInfo: PlayerIntro) {
         let birthDay = formatDate(stringDate: playerInfo.birthDate)
         let age = getPlayerAge(stringDate: playerInfo.birthDate)
-        
+
         nameLabel.text = playerInfo.playerName
-        line1Label.text = "Team: \(playerInfo.teamAbrv)  Position: \(playerInfo.position)  Age: \(age)"
-        
+        line1Label.text = "Team: \(playerInfo.teamAbrv)    Position: \(playerInfo.position)    Age: \(age)"
+                
+        // If the player is not from the US, display home city instead of state
         if playerInfo.birthState == "" {
             line2Label.text = "Born: \(birthDay) in \(playerInfo.birthCity ), \(playerInfo.birthCountry)"
         } else {
             line2Label.text = "Born: \(birthDay) in \(playerInfo.birthState ), \(playerInfo.birthCountry)"
         }
         
-        line3Label.text = "Height: \(playerInfo.heightFeet)'\(playerInfo.heightInches)  Weight: \(playerInfo.weight)"
+        line3Label.text = "Height: \(playerInfo.heightFeet)'\(playerInfo.heightInches)    Weight: \(playerInfo.weight)"
     }
     
     func formatDate(stringDate: String) -> String {
