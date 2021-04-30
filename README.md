@@ -14,7 +14,7 @@
 ## App Previews: 
 Division Standings             |  League Leaders
 :-------------------------:|:-------------------------:
-![](https://media.giphy.com/media/wwSCfMjVENkm7UKitR/giphy.gif)  |  ![](https://media.giphy.com/media/oEvOinmeGy0Tv5f8JK/giphy.gif)
+![](https://media.giphy.com/media/0Gf5PmZDm78Fg53JJz/giphy.gif)  |  ![](https://media.giphy.com/media/oEvOinmeGy0Tv5f8JK/giphy.gif)
 
 
 Team Roster             |  Add Favorite Players
@@ -29,11 +29,11 @@ Team Roster             |  Add Favorite Players
 - UI done all programmatically 
 
 ## APIs Used:
-####Baseball team API
+#### Baseball team API
 - https://rapidapi.com/api-sports/api/api-baseball/endpoints
 - Freemium API
 - Update the request header in the getStandings function inside the TeamNetworkManger file
 
-####MLB data API
+#### MLB data API
 - https://rapidapi.com/theapiguy/api/mlb-data
 - No key needed
