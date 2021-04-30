@@ -25,8 +25,8 @@ class LeadersCollectionCell: UICollectionViewCell {
     
     func configureStatName(statName: String) {
         statView.nameLabel.text = statName
-        statView.statLabel.text = nil
-        statView.logo.image = nil
+        statView.statLabel.text = .none
+        statView.logo.image = .none
         statView.backgroundColor = .secondarySystemFill
     }
     

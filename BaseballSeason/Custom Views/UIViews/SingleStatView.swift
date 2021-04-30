@@ -36,7 +36,6 @@ class SingleStatView: UIView {
         statValueLabel.translatesAutoresizingMaskIntoConstraints = false
         statValueLabel.backgroundColor = .tertiarySystemFill
         statValueLabel.textAlignment = .center
-        
         statValueLabel.layer.borderWidth = 0.25
         
         NSLayoutConstraint.activate([

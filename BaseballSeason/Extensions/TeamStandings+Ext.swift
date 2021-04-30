@@ -12,13 +12,13 @@ extension TeamStandingsVC {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: StandingsCollectionCell.reuseID, for: indexPath) as! StandingsCollectionCell
 
         //MARK: Sorting each division by winning percentage
-        let sortedAlEast = alEastStanding.sorted { $0.winPercentage < $1.winPercentage}
-        let sortedALCentral = alCentralStanding.sorted { $0.winPercentage < $1.winPercentage}
-        let sortedALWest = alWestStanding.sorted { $0.winPercentage < $1.winPercentage}
+        let sortedAlEast = alEastStandings.sorted { $0.winPercentage < $1.winPercentage}
+        let sortedALCentral = alCentralStandings.sorted { $0.winPercentage < $1.winPercentage}
+        let sortedALWest = alWestStandings.sorted { $0.winPercentage < $1.winPercentage}
 
-        let sortedNLEast = nlEastStanding.sorted { $0.winPercentage < $1.winPercentage}
-        let sortedNLCentral = nlCentralStanding.sorted { $0.winPercentage < $1.winPercentage}
-        let sortedNLWest = nlWestStanding.sorted { $0.winPercentage < $1.winPercentage}
+        let sortedNLEast = nlEastStandings.sorted { $0.winPercentage < $1.winPercentage}
+        let sortedNLCentral = nlCentralStandings.sorted { $0.winPercentage < $1.winPercentage}
+        let sortedNLWest = nlWestStandings.sorted { $0.winPercentage < $1.winPercentage}
 
         // setting the top corner radius of the stat name cell
         func setTopCorner() {

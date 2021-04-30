@@ -73,6 +73,7 @@ class PlayerStatsView: UIView {
         stat5.leadingAnchor.constraint(equalTo: stat4.trailingAnchor).isActive = true
         stat6.leadingAnchor.constraint(equalTo: stat5.trailingAnchor).isActive = true
         
+        //setting corner radius of the top and bottom corners
         stat1.setTopLeftCornerRadius()
         stat6.setTopRightCornerRadius()
         stat7.setBottomLeftCornerRadius()

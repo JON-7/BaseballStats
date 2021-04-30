@@ -16,7 +16,63 @@ enum Division {
     static let nlWest = "NL West"
 }
 
-// MARK: Returns the teams primary color and their logo
+enum StatType {
+    case hitting
+    case pitching
+}
+
+enum Stat {
+    case avg, sb, hr, rbi, hits
+    case era, wins, sv, so, whip
+}
+
+enum StatTitle {
+    static let avg = "Average"
+    static let sb = "Stolen Bases"
+    static let hrs = "Home Runs"
+    static let rbi = "RBI"
+    static let hits = "Hits"
+    
+    static let era = "ERA"
+    static let wins = "Wins"
+    static let saves = "Saves"
+    static let so = "Strikeouts"
+    static let whip = "Whip"
+}
+
+enum League {
+    static let mlb = "MLB"
+    static let al = "AL"
+    static let nl = "NL"
+}
+
+enum SFName {
+    static let star = "star"
+    static let fullStar = "star.fill"
+    static let favorite = "star.circle.fill"
+    static let chart = "chart.bar.xaxis"
+    static let people = "person.3.fill"
+    static let circleStar = "star.circle.fill"
+}
+
+enum NotificationName {
+    static let reloadFavoriteTable = "newDataNotif"
+}
+
+enum KeyName {
+    static let favoritePlayer = "favoritePlayer"
+}
+
+enum ErrorMessage: String, Error {
+    case noData = "No data found"
+    case invalidURL = "URL not found"
+    case requestError = "Error making network request"
+    case noResponce = "No response received"
+    case addingFavFailed = "Error adding player to favorites list"
+    case noFavorites = "Error retrieving favorites"
+}
+
+// MARK: Returns the teams primary color, logo, and team ID
 func getTeamInfo(teamName: String) -> (color: UIColor, logo: UIImage?, teamID: Int) {
     switch teamName {
     case "Toronto Blue Jays":
@@ -82,55 +138,4 @@ func getTeamInfo(teamName: String) -> (color: UIColor, logo: UIImage?, teamID: I
     default:
         return (#colorLiteral(red: 0.3333333433, green: 0.3333333433, blue: 0.3333333433, alpha: 1), UIImage(systemName: "person.3.fill"), teamID: 0)
     }
-}
-
-enum StatType {
-    case hitting
-    case pitching
-}
-
-
-enum Stats {
-    case avg
-    case sb
-    case hr
-    case rbi
-    case hits
-    
-    case era
-    case wins
-    case saves
-    case so
-    case whip
-}
-
-enum StatTitle {
-    static let avg = "Average"
-    static let sb = "Stolen Bases"
-    static let hrs = "Home Runs"
-    static let rbi = "RBI's"
-    static let hits = "Hits"
-    
-    static let era = "ERA"
-    static let wins = "Wins"
-    static let saves = "Saves"
-    static let so = "Strikeouts"
-    static let whip = "Whip"
-}
-
-enum SegmentView {
-    static let standings = "Standings"
-    static let leaders = "Leaders"
-    static let favorites = "Favorites"
-}
-
-enum SFNames {
-    static let star = "star"
-    static let fullStar = "star.fill"
-    static let favorite = "star.circle.fill"
-    
-}
-
-enum NotificationNames {
-    static let reloadFavoriteTable = "newDataNotif"
 }

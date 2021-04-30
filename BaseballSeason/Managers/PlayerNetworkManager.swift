@@ -9,21 +9,20 @@ import UIKit
 
 class PlayerNetworkManager {
     static let shared = PlayerNetworkManager()
-    
-    private let playerInfoApiURL = "https://lookup-service-prod.mlb.com/json/named."
-    let year = Calendar.current.component(.year, from: Date())
-    
     private init(){}
     
+    private let playerInfoBaseURL = "https://lookup-service-prod.mlb.com/json/named."
+    let year = Calendar.current.component(.year, from: Date())
     var favorites = [FavoritePlayers]()
 
-    func getLeagueLeaders(for stat: Stats, statType: StatType, completed: @escaping (Result<[LeagueLeaders], ErrorMessage>) -> Void) {
+    func getLeagueLeaders(for stat: Stat, statType: StatType, completed: @escaping (Result<[LeagueLeaders], ErrorMessage>) -> Void) {
         
-        func getStat(stat: Stats) -> String {
+        //returns the stat as a string that is used to make the network call
+        func getStat(stat: Stat) -> String {
             switch stat {
             case .wins:
                 return "w"
-            case .saves:
+            case .sv:
                 return "sv"
             case .so:
                 return "so"
@@ -49,13 +48,13 @@ class PlayerNetworkManager {
         var endpoint: String
         
         if statType == StatType.hitting {
-            endpoint = playerInfoApiURL + "leader_hitting_repeater.bam?results=50&season='\(year)'&sort_column='\(leadingStat)'"
+            endpoint = playerInfoBaseURL + "leader_hitting_repeater.bam?results=50&season='\(year)'&sort_column='\(leadingStat)'"
         } else {
-            endpoint = playerInfoApiURL + "leader_pitching_repeater.bam?results=50&season='\(year)'&sort_column='\(leadingStat)'"
+            endpoint = playerInfoBaseURL + "leader_pitching_repeater.bam?results=50&season='\(year)'&sort_column='\(leadingStat)'"
         }
         
         guard let url = URL(string: endpoint) else {
-            completed(.failure(.noData))
+            completed(.failure(.invalidURL))
             return
         }
         
@@ -65,12 +64,12 @@ class PlayerNetworkManager {
         URLSession.shared.dataTask(with: request) { data, response, error in
 
             if let _ = error {
-                completed(.failure(.noData))
+                completed(.failure(.requestError))
                 return
             }
             
             guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
-                completed(.failure(.noData))
+                completed(.failure(.noResponce))
                 return
             }
             
@@ -82,8 +81,6 @@ class PlayerNetworkManager {
             let decoder = JSONDecoder()
             decoder.keyDecodingStrategy = .convertFromSnakeCase
             
-            
-
             guard let result = try? decoder.decode(LeadersResponse.self, from: data) else { return }
             var player: QueryResults
             if statType == .hitting {
@@ -92,8 +89,7 @@ class PlayerNetworkManager {
                 player = (result.leaderPitchingRepeater?.leaderPitchingMux.queryResults)!
             }
             
-            
-        
+            //MARK: Retrieving the top 50 players that will later be filtered
             for n in 0...49 {
                 let playerName = player.row[n].nameDisplayFirstLast
                 let teamName = player.row[n].teamName
@@ -116,7 +112,7 @@ class PlayerNetworkManager {
                     playerStat = (player.row[n].era) ?? "0"
                 case .wins:
                     playerStat = (player.row[n].w) ?? "0"
-                case .saves:
+                case .sv:
                     playerStat = (player.row[n].sv) ?? "0"
                 case .so:
                     playerStat = (player.row[n].so) ?? "0"
@@ -132,12 +128,12 @@ class PlayerNetworkManager {
     }
     
     
-    func getPlayerInfo(playerName: String, completed: @escaping (Result<PlayerIntro, ErrorMessage>) -> Void) {
-        var endpoint = playerInfoApiURL + "search_player_all.bam?sport_code='mlb'&active_sw='Y'&name_part='\(playerName)'"
+    func getPlayerInfo(for playerName: String, completed: @escaping (Result<PlayerIntro, ErrorMessage>) -> Void) {
+        var endpoint = playerInfoBaseURL + "search_player_all.bam?sport_code='mlb'&active_sw='Y'&name_part='\(playerName)'"
         endpoint = endpoint.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
         
         guard let url = URL(string: endpoint) else {
-            completed(.failure(.noData))
+            completed(.failure(.invalidURL))
             return
         }
         
@@ -147,12 +143,12 @@ class PlayerNetworkManager {
         URLSession.shared.dataTask(with: request) { data, responce, error in
             
             if let _ = error {
-                completed(.failure(.noData))
+                completed(.failure(.requestError))
                 return
             }
             
             guard let responce = responce as? HTTPURLResponse, responce.statusCode == 200 else {
-                completed(.failure(.noData))
+                completed(.failure(.noResponce))
                 return
             }
             
@@ -163,6 +159,7 @@ class PlayerNetworkManager {
             
             let decoder = JSONDecoder()
             decoder.keyDecodingStrategy = .convertFromSnakeCase
+            
             guard let result = try? decoder.decode(PlayerInfoResponse.self, from: data) else { return }
             let results = result.searchPlayerAll.queryResults.row
             let playerName = results.nameDisplayFirstLast
@@ -183,7 +180,7 @@ class PlayerNetworkManager {
     
     
     func getPlayerSeasonStats(playerID: String, statType: StatType, completed: @escaping (Result<PlayerStats, ErrorMessage>) -> Void) {
-        var endpoint = playerInfoApiURL
+        var endpoint = playerInfoBaseURL
         
         if statType == .hitting {
             endpoint = endpoint + "sport_hitting_tm.bam?league_list_id='mlb'&game_type='R'&season='\(year)'&player_id='\(playerID)'"
@@ -192,7 +189,7 @@ class PlayerNetworkManager {
         }
         
         guard let url = URL(string: endpoint) else {
-            completed(.failure(.noData))
+            completed(.failure(.invalidURL))
             return
         }
         
@@ -202,12 +199,12 @@ class PlayerNetworkManager {
         URLSession.shared.dataTask(with: request) { data, responce, error in
             
             if let _ = error {
-                completed(.failure(.noData))
+                completed(.failure(.requestError))
                 return
             }
             
             guard let responce = responce as? HTTPURLResponse, responce.statusCode == 200 else {
-                completed(.failure(.noData))
+                completed(.failure(.noResponce))
                 return
             }
             
@@ -219,10 +216,9 @@ class PlayerNetworkManager {
             let decoder = JSONDecoder()
             decoder.keyDecodingStrategy = .convertFromSnakeCase
             
-            
             if statType == .hitting {
                 guard let result = try? decoder.decode(HittingStats.self, from: data) else {
-                    //MARK: If the player has no stats for the season all stats will show a zero
+                    //MARK: If the player has no stats for the season, then all stats will display a zero
                     let noHittingStats = PlayerStats(stat1: "0", stat2: "0", stat3: "0", stat4: "0", stat5: "0", stat6: "0", stat7: ".000", stat8: "0", stat9: ".000", stat10: ".000", stat11: ".000", stat12: "0")
                     completed(.success(noHittingStats))
                     return
@@ -247,7 +243,7 @@ class PlayerNetworkManager {
     
     func getPlayerCareerStats(playerID: String, statType: StatType, completed: @escaping (Result<PlayerStats, ErrorMessage>) -> Void) {
 
-        var endpoint = playerInfoApiURL
+        var endpoint = playerInfoBaseURL
         
         if statType == .hitting {
             endpoint = endpoint + "sport_career_hitting.bam?league_list_id='mlb'&game_type='R'&player_id='\(playerID)'"
@@ -256,7 +252,7 @@ class PlayerNetworkManager {
         }
         
         guard let url = URL(string: endpoint) else {
-            completed(.failure(.noData))
+            completed(.failure(.invalidURL))
             return
         }
         
@@ -266,12 +262,12 @@ class PlayerNetworkManager {
         URLSession.shared.dataTask(with: request) { data, responce, error in
             
             if let _ = error {
-                completed(.failure(.noData))
+                completed(.failure(.requestError))
                 return
             }
             
             guard let responce = responce as? HTTPURLResponse, responce.statusCode == 200 else {
-                completed(.failure(.noData))
+                completed(.failure(.noResponce))
                 return
             }
             
@@ -285,6 +281,7 @@ class PlayerNetworkManager {
             
             if statType == .hitting {
                 guard let result = try? decoder.decode(CareerHittingStats.self, from: data) else {
+                    //MARK: This will only happen when the player has no season stats
                     let noHittingStats = PlayerStats(stat1: "0", stat2: "0", stat3: "0", stat4: "0", stat5: "0", stat6: "0", stat7: ".000", stat8: "0", stat9: ".000", stat10: ".000", stat11: ".000", stat12: "0")
                     completed(.success(noHittingStats))
                     return

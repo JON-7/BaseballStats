@@ -13,18 +13,30 @@ class PlayerIntroView: UIView {
     let line1Label = UILabel()
     let line2Label = UILabel()
     let line3Label = UILabel()
+    var topPadding: CGFloat!
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        configureNameLabel()
-        configureSubText()
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func configureNameLabel() {
+    private func configureBackground() {
+        backgroundColor = .tertiarySystemFill
+        layer.cornerRadius = 16
+        // sets the corner radius for only the bottom left and right
+        layer.maskedCorners = [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
+        
+        // applies shadow effect on the background
+        layer.shadowColor = UIColor.black.cgColor
+        layer.shadowOpacity = 1
+        layer.shadowRadius = 10
+        layer.shadowOffset = .zero
+            }
+    
+    private func configureNameLabel() {
         addSubview(nameLabel)
         nameLabel.translatesAutoresizingMaskIntoConstraints = false
         
@@ -32,25 +44,24 @@ class PlayerIntroView: UIView {
         nameLabel.font = .preferredFont(forTextStyle: .largeTitle)
         
         NSLayoutConstraint.activate([
-            nameLabel.topAnchor.constraint(equalTo: self.topAnchor),
+            nameLabel.topAnchor.constraint(equalTo: self.topAnchor, constant: topPadding),
             nameLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor),
             nameLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor),
         ])
     }
     
-
-    func configureSubText() {
+    private func configureSubText() {
         let views = [line1Label, line2Label, line3Label]
         
         for view in views {
             addSubview(view)
             view.translatesAutoresizingMaskIntoConstraints = false
             view.textAlignment = .center
-            view.font = .preferredFont(forTextStyle: .title3)
+            view.font = .preferredFont(forTextStyle: .title2)
             
             NSLayoutConstraint.activate([
-                view.leadingAnchor.constraint(equalTo: self.leadingAnchor),
-                view.trailingAnchor.constraint(equalTo: self.trailingAnchor),
+                view.leadingAnchor.constraint(equalTo: self.layoutMarginsGuide.leadingAnchor),
+                view.trailingAnchor.constraint(equalTo: self.layoutMarginsGuide.trailingAnchor),
             ])
         }
         
@@ -60,14 +71,10 @@ class PlayerIntroView: UIView {
         
         line2Label.numberOfLines = 0
         line2Label.lineBreakMode = .byWordWrapping
-        line1Label.font = .systemFont(ofSize: 23, weight: .medium)
-        line2Label.font = .systemFont(ofSize: 23, weight: .medium)
-        line3Label.font = .systemFont(ofSize: 23, weight: .medium)
-        
         line1Label.adjustsFontForContentSizeCategory = true
     }
     
-    func set(playerInfo: PlayerIntro) {
+    func set(playerInfo: PlayerIntro, topPadding: CGFloat) {
         let birthDay = formatDate(stringDate: playerInfo.birthDate)
         let age = getPlayerAge(stringDate: playerInfo.birthDate)
 
@@ -82,9 +89,15 @@ class PlayerIntroView: UIView {
         }
         
         line3Label.text = "Height: \(playerInfo.heightFeet)'\(playerInfo.heightInches)    Weight: \(playerInfo.weight)"
+        
+        self.topPadding = topPadding - 10
+        configureNameLabel()
+        configureSubText()
+        configureBackground()
     }
     
-    func formatDate(stringDate: String) -> String {
+    
+    private func formatDate(stringDate: String) -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
         
@@ -94,7 +107,7 @@ class PlayerIntroView: UIView {
         return dateFormatter.string(from: date ?? Date())
     }
     
-    func getPlayerAge(stringDate: String) -> String {
+    private func getPlayerAge(stringDate: String) -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
 
@@ -102,7 +115,7 @@ class PlayerIntroView: UIView {
             let dateDiff = Calendar.current.dateComponents([.year], from: date, to: Date())
             return String(dateDiff.year!)
         } else {
-            return "years ago"
+            return "-"
         }
     }
 }

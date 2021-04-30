@@ -12,20 +12,17 @@ class PlayerInfoVC: UIViewController {
     var playerIntro: PlayerIntro!
     var playerName: String!
     var playerID: String!
+    var playerTeam: String!
     var isPitcher: Bool!
     var playerSeasonStats: PlayerStats!
     var playerCareerStats: PlayerStats!
     var statType: StatType!
     
-    let outerView = UIView()
     let playerIntroView = PlayerIntroView()
     let seasonStatsView = PlayerStatsView(groupName: "Season Stats")
-    let careerStatsView = PlayerStatsView(groupName: " Career Stats")
+    let careerStatsView = PlayerStatsView(groupName: "Career Stats")
     let padding = CGFloat(20)
     var isFavorite = false
-    
-    let userDefaults = UserDefaults()
-    var numbers = [Int]()
     
     override func viewWillAppear(_ animated: Bool) {
         navigationController?.isNavigationBarHidden = false
@@ -35,13 +32,19 @@ class PlayerInfoVC: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        configureView()
         getPlayerIntro()
-        view.backgroundColor = #colorLiteral(red: 0.1235559806, green: 0.1235806867, blue: 0.1434322894, alpha: 1)
-        self.navigationController?.interactivePopGestureRecognizer?.delegate = nil
+        getFavoriteStatus()
+    }
+    
+    private func configureView() {
+        view.backgroundColor = getTeamInfo(teamName: playerTeam).color
+        self.navigationController?.interactivePopGestureRecognizer?.delegate = .none
         self.navigationController?.interactivePopGestureRecognizer?.isEnabled = true
         navigationController?.navigationBar.prefersLargeTitles = true
-        
-        
+    }
+    
+    func getFavoriteStatus() {
         // checking to see if the current player is a favorite player
         if !PlayerNetworkManager.shared.favorites.isEmpty {
             for n in 0..<PlayerNetworkManager.shared.favorites.count {
@@ -50,12 +53,11 @@ class PlayerInfoVC: UIViewController {
                 }
             }
         }
-        
-        // if a favorite player show a full star, if not then show an empty star
+        // if the player is in the favorite list show a full star, if not show an empty star
         if isFavorite {
-            navigationItem.rightBarButtonItem = .init(image: UIImage(systemName: "star.fill"), style: .plain, target: self, action: #selector(changeFavoriteStatus))
+            navigationItem.rightBarButtonItem = .init(image: UIImage(systemName: SFName.fullStar), style: .plain, target: self, action: #selector(changeFavoriteStatus))
         } else {
-            navigationItem.rightBarButtonItem = .init(image: UIImage(systemName: "star"), style: .plain, target: self, action: #selector(changeFavoriteStatus))
+            navigationItem.rightBarButtonItem = .init(image: UIImage(systemName: SFName.star), style: .plain, target: self, action: #selector(changeFavoriteStatus))
         }
     }
     
@@ -65,7 +67,7 @@ class PlayerInfoVC: UIViewController {
         // removing the player from the favorites list
         if isFavorite {
             DispatchQueue.main.async {
-                self.navigationItem.rightBarButtonItem = .init(image: UIImage(systemName: "star"), style: .plain, target: self, action: #selector(self.changeFavoriteStatus))
+                self.navigationItem.rightBarButtonItem = .init(image: UIImage(systemName: SFName.star), style: .plain, target: self, action: #selector(self.changeFavoriteStatus))
             }
             
             // finding the player index in the favorite array
@@ -77,19 +79,29 @@ class PlayerInfoVC: UIViewController {
             // deleting from the favorite array
             if (deleteIndex >= 0) {
                 PlayerNetworkManager.shared.favorites.remove(at: deleteIndex)
-                NotificationCenter.default.post(name: Notification.Name("newDataNotif"), object: nil)
+                NotificationCenter.default.post(name: Notification.Name(NotificationName.reloadFavoriteTable), object: nil)
             }
-            
             isFavorite = false
             
         } else {
             DispatchQueue.main.async {
-                self.navigationItem.rightBarButtonItem = .init(image: UIImage(systemName: "star.fill"), style: .plain, target: self, action: #selector(self.changeFavoriteStatus))
+                self.navigationItem.rightBarButtonItem = .init(image: UIImage(systemName: SFName.fullStar), style: .plain, target: self, action: #selector(self.changeFavoriteStatus))
             }
             
-            let player = FavoritePlayers(name: playerName, playerID: playerID, isPitcher: isPitcher)
+            let player = FavoritePlayers(name: playerName, playerID: playerID, isPitcher: isPitcher, teamName: playerTeam)
             PlayerNetworkManager.shared.favorites.append(player)
-            NotificationCenter.default.post(name: Notification.Name("newDataNotif"), object: nil)
+            
+            // saving
+            do {
+                let encoder = JSONEncoder()
+                let data = try encoder.encode(PlayerNetworkManager.shared.favorites)
+                UserDefaults.standard.set(data, forKey: "favoritePlayer")
+                print("added \(player)")
+            } catch {
+                displayErrorMessage(error: ErrorMessage.addingFavFailed)
+            }
+            // sending notification to reload the favorite players table view
+            NotificationCenter.default.post(name: Notification.Name(NotificationName.reloadFavoriteTable), object: nil)
             self.isFavorite = true
         }
     }
@@ -104,12 +116,12 @@ class PlayerInfoVC: UIViewController {
         DispatchQueue.global(qos: .background).async(group: dispatchGroup) {
             dispatchGroup.enter()
             
-            PlayerNetworkManager.shared.getPlayerInfo(playerName: self.playerName) { [weak self] result in
+            PlayerNetworkManager.shared.getPlayerInfo(for: self.playerName) { [weak self] result in
                 switch result {
                 case .success(let data):
                     self?.playerIntro = data
                 case .failure(let error):
-                    print(error)
+                    self?.displayErrorMessage(error: error)
                 }
                 dispatchGroup.leave()
             }
@@ -123,7 +135,7 @@ class PlayerInfoVC: UIViewController {
                 case .success(let data):
                     self?.playerSeasonStats = data
                 case .failure(let error):
-                    print(error)
+                    self?.displayErrorMessage(error: error)
                 }
                 dispatchGroup.leave()
             }
@@ -137,59 +149,38 @@ class PlayerInfoVC: UIViewController {
                 case .success(let data):
                     self?.playerCareerStats = data
                 case .failure(let error):
-                    print(error)
+                    self?.displayErrorMessage(error: error)
                 }
                 dispatchGroup.leave()
             }
         }
         
         dispatchGroup.notify(queue: .main) {
-            self.configureOuter()
+            self.configurePlayerInfo()
             self.configureSeasonStats()
             self.configureCareerStats()
             self.removeSpinner()
         }
     }
     
-    func configureOuter() {
-        view.addSubview(outerView)
-        outerView.translatesAutoresizingMaskIntoConstraints = false
-        
-        outerView.backgroundColor = #colorLiteral(red: 0.2946154475, green: 0.2989868522, blue: 0.2946062088, alpha: 1)
-        outerView.layer.cornerRadius = 16
-        outerView.layer.maskedCorners = [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
-        
-        outerView.layer.shadowColor = UIColor.black.cgColor
-        outerView.layer.shadowOpacity = 1
-        outerView.layer.shadowOffset = .zero
-        outerView.layer.shadowRadius = 10
-        
-        NSLayoutConstraint.activate([
-            outerView.topAnchor.constraint(equalTo: view.topAnchor),
-            outerView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            outerView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            outerView.heightAnchor.constraint(equalToConstant: view.bounds.height * 0.3)
-        ])
-        
-        configurePlayerInfo()
-    }
-    
     private func configurePlayerInfo() {
         let navBarHeight = CGFloat(navigationController?.navigationBar.bounds.height ?? 25)
-        outerView.addSubview(playerIntroView)
+        view.addSubview(playerIntroView)
         playerIntroView.translatesAutoresizingMaskIntoConstraints = false
-        playerIntroView.set(playerInfo: playerIntro)
+        playerIntroView.set(playerInfo: playerIntro, topPadding: navBarHeight)
         
         NSLayoutConstraint.activate([
-            playerIntroView.topAnchor.constraint(equalTo: view.topAnchor, constant: navBarHeight - 20),
-            playerIntroView.leadingAnchor.constraint(equalTo: outerView.leadingAnchor),
-            playerIntroView.trailingAnchor.constraint(equalTo: outerView.trailingAnchor)
+            playerIntroView.topAnchor.constraint(equalTo: view.topAnchor),
+            playerIntroView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            playerIntroView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            playerIntroView.heightAnchor.constraint(equalToConstant: view.bounds.height * 0.35)
         ])
     }
     
     private func configureSeasonStats() {
         view.addSubview(seasonStatsView)
         seasonStatsView.translatesAutoresizingMaskIntoConstraints = false
+        
         if statType == .hitting {
             seasonStatsView.setHittingStats(stats: playerSeasonStats)
         } else {
@@ -197,7 +188,7 @@ class PlayerInfoVC: UIViewController {
         }
         
         NSLayoutConstraint.activate([
-            seasonStatsView.topAnchor.constraint(equalTo: outerView.bottomAnchor, constant: 40),
+            seasonStatsView.topAnchor.constraint(equalTo: playerIntroView.bottomAnchor, constant: 40),
             seasonStatsView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: padding),
             seasonStatsView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -padding),
         ])

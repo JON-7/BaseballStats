@@ -7,8 +7,9 @@
 
 import Foundation
 
-struct FavoritePlayers {
+struct FavoritePlayers: Codable {
     let name: String
     let playerID: String
     let isPitcher: Bool
+    let teamName: String
 }

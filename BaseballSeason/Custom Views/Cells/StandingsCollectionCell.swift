@@ -44,9 +44,9 @@ class StandingsCollectionCell: UICollectionViewCell {
     
     func configureDivisionTitle(division: String) {
         teamView.teamNameLabel.text = division
-        teamView.logo.image = nil
-        teamView.backgroundColor = .lightGray
-        teamView.gamesBehindLabel.text = nil
-        teamView.teamRecord.text = nil
+        teamView.logo.image = .none
+        teamView.backgroundColor = .tertiarySystemGroupedBackground
+        teamView.gamesBehindLabel.text = .none
+        teamView.teamRecord.text = .none
     }
 }

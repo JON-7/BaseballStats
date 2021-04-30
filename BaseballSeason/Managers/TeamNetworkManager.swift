@@ -10,6 +10,8 @@ import Foundation
 class TeamNetworkManager {
     
     static let shared = TeamNetworkManager()
+    private init(){}
+    
     private let baseTeamInfoApiURL = "https://api-baseball.p.rapidapi.com/"
     private let playerInfoApiURL = "https://lookup-service-prod.mlb.com/json/named."
     let year = Calendar.current.component(.year, from: Date())
@@ -19,12 +21,13 @@ class TeamNetworkManager {
         endpoint = endpoint.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
         
         guard let url = URL(string: endpoint) else {
-            completed(.failure(.noData))
+            completed(.failure(.invalidURL))
             return
         }
         var request = URLRequest(url: url, cachePolicy: .useProtocolCachePolicy, timeoutInterval: 10)
         
         let headers = [
+            //MARK: Team Baseball API key goes here
             "x-rapidapi-key": Keys.TeamAPIKey,
             "x-rapidapi-host": "api-baseball.p.rapidapi.com"
         ]
@@ -35,12 +38,12 @@ class TeamNetworkManager {
         URLSession.shared.dataTask(with: request) { data, responce, error in
             
             if let _ = error {
-                completed(.failure(.noData))
+                completed(.failure(.requestError))
                 return
             }
             
             guard let responce = responce as? HTTPURLResponse, responce.statusCode == 200 else {
-                completed(.failure(.noData))
+                completed(.failure(.noResponce))
                 return
             }
             guard let data = data else {
@@ -71,7 +74,7 @@ class TeamNetworkManager {
         let endpoint = playerInfoApiURL + "roster_40.bam?team_id='\(teamID)'"
         
         guard let url = URL(string: endpoint) else {
-            completed(.failure(.noData))
+            completed(.failure(.invalidURL))
             return
         }
         
@@ -81,12 +84,12 @@ class TeamNetworkManager {
         URLSession.shared.dataTask(with: request) { data, responce, error in
             
             if let _ = error {
-                completed(.failure(.noData))
+                completed(.failure(.requestError))
                 return
             }
             
             guard let responce = responce as? HTTPURLResponse, responce.statusCode == 200 else {
-                completed(.failure(.noData))
+                completed(.failure(.noResponce))
                 return
             }
             

@@ -56,15 +56,15 @@ extension LeagueLeadersVC {
                 cell.configureStatName(statName: StatTitle.hits)
                 setTopCorner()
             case 7:
-                cell.configureMain(leaders: hitsLeaders[0])
+                cell.configureMain(leaders: hitLeaders[0])
             case 8:
-                cell.configureMain(leaders: hitsLeaders[1])
+                cell.configureMain(leaders: hitLeaders[1])
             case 9:
-                cell.configureMain(leaders: hitsLeaders[2])
+                cell.configureMain(leaders: hitLeaders[2])
             case 10:
-                cell.configureMain(leaders: hitsLeaders[3])
+                cell.configureMain(leaders: hitLeaders[3])
             case 11:
-                cell.configureMain(leaders: hitsLeaders[4])
+                cell.configureMain(leaders: hitLeaders[4])
                 setBottomCorner()
             case 12:
                 cell.isUserInteractionEnabled = false

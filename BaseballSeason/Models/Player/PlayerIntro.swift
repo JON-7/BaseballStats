@@ -8,14 +8,14 @@
 import Foundation
 
 struct PlayerIntro {
-    var playerName: String
-    var teamAbrv: String
-    var position: String
-    var birthDate: String
-    var birthState: String
-    var birthCity: String
-    var birthCountry: String
-    var heightFeet: String
-    var heightInches: String
-    var weight: String
+    let playerName: String
+    let teamAbrv: String
+    let position: String
+    let birthDate: String
+    let birthState: String
+    let birthCity: String
+    let birthCountry: String
+    let heightFeet: String
+    let heightInches: String
+    let weight: String
 }

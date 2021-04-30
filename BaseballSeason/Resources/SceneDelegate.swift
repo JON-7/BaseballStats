@@ -30,8 +30,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         tabbar.setViewControllers([standingsVC, leadersVC, favoritesVC], animated: true)
         tabbar.tabBar.backgroundColor = .white
         
-        
-        let images = ["pencil", "pencil", "star.circle.fill"]
+        let images = [SFName.chart, SFName.people, SFName.circleStar]
         let titles = ["Standings", "Leaders", "Favorites"]
         if let items = tabbar.tabBar.items {
             for n in 0..<items.count {
@@ -39,9 +38,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                 items[n].title = titles[n]
             }
         }
-        
-        let tabbarItem1 = tabbar.tabBar.items![0]
-        tabbarItem1.image = UIImage(systemName: "pencil")
         
         return tabbar
     }

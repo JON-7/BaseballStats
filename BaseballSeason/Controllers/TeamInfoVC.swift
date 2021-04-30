@@ -24,31 +24,35 @@ class TeamInfoVC: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.navigationController?.interactivePopGestureRecognizer?.delegate = nil
-        self.navigationController?.interactivePopGestureRecognizer?.isEnabled = true
-        navigationController?.navigationBar.prefersLargeTitles = true
-        view.backgroundColor = .lightGray
+        configureView()
         getRoster()
     }
     
-    func getRoster() {
+    private func configureView() {
+        self.navigationController?.interactivePopGestureRecognizer?.delegate = nil
+        self.navigationController?.interactivePopGestureRecognizer?.isEnabled = true
+        navigationController?.navigationBar.prefersLargeTitles = true
+        view.backgroundColor = .tertiarySystemBackground
+    }
+    
+    private func getRoster() {
         let dispatchGroup = DispatchGroup()
         
         DispatchQueue.main.async {
             self.showSpinner()
         }
         
-        let id = getTeamInfo(teamName: teamName).teamID
+        let teamID = getTeamInfo(teamName: teamName).teamID
         
         DispatchQueue.global(qos: .background).async(group: dispatchGroup) {
             dispatchGroup.enter()
             
-            TeamNetworkManager.shared.getFullRoster(teamID: id) { [weak self] result in
+            TeamNetworkManager.shared.getFullRoster(teamID: teamID) { [weak self] result in
                 switch result {
                 case .success(let data):
                     self?.fullRoster = data
                 case .failure(let error):
-                    print(error)
+                    self?.displayErrorMessage(error: error)
                 }
                 dispatchGroup.leave()
             }
@@ -103,6 +107,7 @@ class TeamInfoVC: UIViewController {
         ])
     }
     
+    // collectionView layout
     private func createCollectionFlowLayout() -> UICollectionViewCompositionalLayout {
         let layout = UICollectionViewCompositionalLayout { sectionNumber, evn -> NSCollectionLayoutSection? in
             let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)))
@@ -150,7 +155,7 @@ extension TeamInfoVC: UICollectionViewDelegateFlowLayout, UICollectionViewDataSo
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: RosterCell.reuseID, for: indexPath) as! RosterCell
         let total = fullRoster.count-1
         
-        //MARK: Configuring the corners of the first and last cell
+        // configuring the corners of the first and last cell
         if indexPath.item == 0 {
             cell.layer.cornerRadius = 16
             cell.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
@@ -183,11 +188,14 @@ extension TeamInfoVC: UICollectionViewDelegateFlowLayout, UICollectionViewDataSo
                 let vc = PlayerInfoVC()
                 vc.playerID = fullRoster[n].playerID
                 vc.playerName = fullRoster[n].name
+                vc.playerTeam = teamName
                 
                 if fullRoster[n].position == "P" {
                     vc.statType = .pitching
+                    vc.isPitcher = true
                 } else {
                     vc.statType = .hitting
+                    vc.isPitcher = false
                 }
                 navigationController?.pushViewController(vc, animated: true)
             }

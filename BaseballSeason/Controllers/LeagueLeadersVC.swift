@@ -9,10 +9,8 @@ import UIKit
 
 class LeagueLeadersVC: UIViewController {
     
-    weak var collectionView: UICollectionView!
-    
-    var hitsLeaders = [LeagueLeaders]()
-    var hitsLeadersMain = [LeagueLeaders]()
+    var hitLeaders = [LeagueLeaders]()
+    var hitLeadersMain = [LeagueLeaders]()
     var hrLeaders = [LeagueLeaders]()
     var hrLeadersMain = [LeagueLeaders]()
     var avgLeaders = [LeagueLeaders]()
@@ -33,22 +31,19 @@ class LeagueLeadersVC: UIViewController {
     var whipLeaders = [LeagueLeaders]()
     var whipLeadersMain = [LeagueLeaders]()
     
-    let leaderCell = LeadersCollectionCell()
-    var segmentedControl = UISegmentedControl(items: ["MLB","AL","NL"])
-    
+    weak var collectionView: UICollectionView!
+    var segmentedControl = UISegmentedControl(items: [League.mlb, League.al, League.nl])
     var isFavorite = false
     
     override func viewWillAppear(_ animated: Bool) {
-        segmentedControl.selectedSegmentIndex = 0
         navigationController?.isNavigationBarHidden = true
         tabBarController?.tabBar.isHidden = false
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        getData()
+        getLeagueLeaders()
     }
-    
     
     func configureCollectionView() {
         let cv = UICollectionView(frame: .zero, collectionViewLayout: configureCollectionLayout())
@@ -56,7 +51,7 @@ class LeagueLeadersVC: UIViewController {
         view.addSubview(cv)
     
         self.collectionView = cv
-        collectionView.backgroundColor = .lightGray
+        collectionView.backgroundColor = .tertiarySystemBackground
         collectionView.isScrollEnabled = false
         collectionView.dataSource = self
         collectionView.delegate = self
@@ -68,6 +63,7 @@ class LeagueLeadersVC: UIViewController {
         segmentedControl.addTarget(self, action: #selector(viewDidChange), for: .valueChanged)
         view.addSubview(segmentedControl)
         segmentedControl.translatesAutoresizingMaskIntoConstraints = false
+        segmentedControl.selectedSegmentIndex = 0
         
         NSLayoutConstraint.activate([
             segmentedControl.leadingAnchor.constraint(equalTo: view.layoutMarginsGuide.leadingAnchor, constant: 40),
@@ -79,12 +75,13 @@ class LeagueLeadersVC: UIViewController {
     @objc func viewDidChange(_ segmentedControl: UISegmentedControl) {
         switch segmentedControl.selectedSegmentIndex {
         case 0:
+            // Displays the original leaders list
             DispatchQueue.main.async {
                 self.hrLeaders = self.hrLeadersMain
                 self.avgLeaders = self.avgLeadersMain
                 self.rbiLeaders = self.rbiLeadersMain
                 self.sbLeaders = self.sbLeadersMain
-                self.hitsLeaders = self.hitsLeadersMain
+                self.hitLeaders = self.hitLeadersMain
                 
                 self.winLeaders = self.winLeadersMain
                 self.eraLeaders = self.eraLeadersMain
@@ -93,9 +90,9 @@ class LeagueLeadersVC: UIViewController {
                 self.collectionView.reloadData()
             }
         case 1:
-            setLeaders(for: "AL")
+            setLeaders(for: League.al)
         case 2:
-            setLeaders(for: "NL")
+            setLeaders(for: League.nl)
         default:
             break
         }
@@ -107,7 +104,7 @@ class LeagueLeadersVC: UIViewController {
             self.avgLeaders = self.getLeagueLeaders(leagueLeaders: self.avgLeaders, for: league)
             self.rbiLeaders = self.getLeagueLeaders(leagueLeaders: self.rbiLeaders, for: league)
             self.sbLeaders = self.getLeagueLeaders(leagueLeaders: self.sbLeaders, for: league)
-            self.hitsLeaders = self.getLeagueLeaders(leagueLeaders: self.hitsLeaders, for: league)
+            self.hitLeaders = self.getLeagueLeaders(leagueLeaders: self.hitLeaders, for: league)
             
             self.winLeaders = self.getLeagueLeaders(leagueLeaders: self.winLeaders, for: league)
             self.eraLeaders = self.getLeagueLeaders(leagueLeaders: self.eraLeaders, for: league)
@@ -120,7 +117,7 @@ class LeagueLeadersVC: UIViewController {
         self.avgLeaders = self.avgLeadersMain
         self.rbiLeaders = self.rbiLeadersMain
         self.sbLeaders = self.sbLeadersMain
-        self.hitsLeaders = self.hitsLeadersMain
+        self.hitLeaders = self.hitLeadersMain
         
         self.winLeaders = self.winLeadersMain
         self.eraLeaders = self.eraLeadersMain
@@ -132,7 +129,6 @@ class LeagueLeadersVC: UIViewController {
     
     private func getLeagueLeaders(leagueLeaders: [LeagueLeaders], for league: String) -> [LeagueLeaders]{
         var leaders = [LeagueLeaders]()
-        // 
         for n in 0..<leagueLeaders.count {
             if leagueLeaders[n].league == league {
                 leaders.append(leagueLeaders[n])
@@ -142,15 +138,15 @@ class LeagueLeadersVC: UIViewController {
     }
         
     
-    func getData() {
+    func getLeagueLeaders() {
         let dispatchGroup = DispatchGroup()
         
-        let hittingStats = [Stats.hr, Stats.avg, Stats.hits, Stats.rbi, Stats.sb]
-        let pitchingStats = [Stats.wins, Stats.era, Stats.saves, Stats.so, Stats.whip]
+        let hittingStats = [Stat.hr, Stat.avg, Stat.hits, Stat.rbi, Stat.sb]
+        let pitchingStats = [Stat.wins, Stat.era, Stat.sv, Stat.so, Stat.whip]
         let allStats = hittingStats + pitchingStats
         
         DispatchQueue.main.async {
-            // showing a spinner until the network call is complete and ui is updated
+            // showing a spinner until the network call is complete and UI is updated
             self.showSpinner()
         }
         
@@ -158,8 +154,7 @@ class LeagueLeadersVC: UIViewController {
             DispatchQueue.global(qos: .background).async(group: dispatchGroup) {
                 dispatchGroup.enter()
                 
-                // var that keeps track of the current stat type
-                // needed bc the url is different depending on stat type
+                // keeps track of the current stat type
                 var hittingOrPitching: StatType!
                 
                 if hittingStats.contains(stat) {
@@ -186,15 +181,15 @@ class LeagueLeadersVC: UIViewController {
                             self?.rbiLeaders = data
                             self?.rbiLeadersMain = data
                         case .hits:
-                            self?.hitsLeaders = data
-                            self?.hitsLeadersMain = data
+                            self?.hitLeaders = data
+                            self?.hitLeadersMain = data
                         case .era:
                             self?.eraLeaders = data
                             self?.eraLeadersMain = data
                         case .wins:
                             self?.winLeaders = data
                             self?.winLeadersMain = data
-                        case .saves:
+                        case .sv:
                             self?.svLeaders = data
                             self?.svLeadersMain = data
                         case .so:
@@ -205,8 +200,7 @@ class LeagueLeadersVC: UIViewController {
                             self?.whipLeadersMain = data
                         }
                     case .failure(let error):
-                        // TODO: Add alert action displaying error
-                        print(error)
+                        self?.displayErrorMessage(error: error)
                     }
                     dispatchGroup.leave()
                 }
@@ -247,13 +241,15 @@ extension LeagueLeadersVC: UICollectionViewDataSource, UICollectionViewDelegateF
                 if indexPath.item == n {
                     vc.playerName = hrLeaders[n-1].name
                     vc.playerID = hrLeaders[n-1].playerID
+                    vc.playerTeam = hrLeaders[n-1].teamName
                 }
             }
 
             for n in 7...11 {
                 if indexPath.item == n {
-                    vc.playerName = hitsLeaders[n-7].name
-                    vc.playerID = hitsLeaders[n-7].playerID
+                    vc.playerName = hitLeaders[n-7].name
+                    vc.playerID = hitLeaders[n-7].playerID
+                    vc.playerTeam = hitLeaders[n-7].teamName
                 }
             }
 
@@ -261,6 +257,7 @@ extension LeagueLeadersVC: UICollectionViewDataSource, UICollectionViewDelegateF
                 if indexPath.item == n {
                     vc.playerName = avgLeaders[n-13].name
                     vc.playerID = avgLeaders[n-13].playerID
+                    vc.playerTeam = avgLeaders[n-13].teamName
                 }
             }
 
@@ -268,6 +265,7 @@ extension LeagueLeadersVC: UICollectionViewDataSource, UICollectionViewDelegateF
                 if indexPath.item == n {
                     vc.playerName = sbLeaders[n-19].name
                     vc.playerID = sbLeaders[n-19].playerID
+                    vc.playerTeam = sbLeaders[n-19].teamName
                 }
             }
 
@@ -275,6 +273,7 @@ extension LeagueLeadersVC: UICollectionViewDataSource, UICollectionViewDelegateF
                 if indexPath.item == n {
                     vc.playerName = rbiLeaders[n-25].name
                     vc.playerID = rbiLeaders[n-25].playerID
+                    vc.playerTeam = rbiLeaders[n-25].teamName
                 }
             }
         }
@@ -286,6 +285,7 @@ extension LeagueLeadersVC: UICollectionViewDataSource, UICollectionViewDelegateF
                 if indexPath.item == n {
                     vc.playerName = winLeaders[n-1].name
                     vc.playerID = winLeaders[n-1].playerID
+                    vc.playerTeam = winLeaders[n-1].teamName
                 }
             }
 
@@ -293,6 +293,7 @@ extension LeagueLeadersVC: UICollectionViewDataSource, UICollectionViewDelegateF
                 if indexPath.item == n {
                     vc.playerName = eraLeaders[n-7].name
                     vc.playerID = eraLeaders[n-7].playerID
+                    vc.playerTeam = eraLeaders[n-7].teamName
                 }
             }
 
@@ -300,6 +301,7 @@ extension LeagueLeadersVC: UICollectionViewDataSource, UICollectionViewDelegateF
                 if indexPath.item == n {
                     vc.playerName = soLeaders[n-13].name
                     vc.playerID = soLeaders[n-13].playerID
+                    vc.playerTeam = soLeaders[n-13].teamName
                 }
             }
 
@@ -307,6 +309,7 @@ extension LeagueLeadersVC: UICollectionViewDataSource, UICollectionViewDelegateF
                 if indexPath.item == n {
                     vc.playerName = svLeaders[n-19].name
                     vc.playerID = svLeaders[n-19].playerID
+                    vc.playerTeam = svLeaders[n-19].teamName
                 }
             }
 
@@ -314,6 +317,7 @@ extension LeagueLeadersVC: UICollectionViewDataSource, UICollectionViewDelegateF
                 if indexPath.item == n {
                     vc.playerName = whipLeaders[n-25].name
                     vc.playerID = whipLeaders[n-25].playerID
+                    vc.playerTeam = whipLeaders[n-25].teamName
                 }
             }
         }
