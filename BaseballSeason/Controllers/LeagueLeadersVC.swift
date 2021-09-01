@@ -31,25 +31,126 @@ class LeagueLeadersVC: UIViewController {
     var whipLeaders = [LeagueLeaders]()
     var whipLeadersMain = [LeagueLeaders]()
     
+    let group = DispatchGroup()
     weak var collectionView: UICollectionView!
-    var segmentedControl = UISegmentedControl(items: [League.mlb, League.al, League.nl])
+    private let segmentedControl = UISegmentedControl(items: [League.mlb, League.al, League.nl])
     var isFavorite = false
     
     override func viewWillAppear(_ animated: Bool) {
         navigationController?.isNavigationBarHidden = true
         tabBarController?.tabBar.isHidden = false
     }
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        getLeagueLeaders()
+        setUpView()
+    }
+    
+    private func setUpView() {
+        DispatchQueue.main.async {
+            self.showSpinner()
+        }
+        group.enter()
+        DispatchQueue.global().async(group: group) {
+            self.setAllLeagueLeaders()
+            self.group.leave()
+        }
+        
+        group.notify(queue: .main) {
+            self.configureCollectionView()
+            self.configureSegmentedControl()
+            self.removeSpinner()
+        }
+    }
+    
+    func getData(for stat: Stat, statType: StatType, completion: @escaping (Result<[LeagueLeaders], Error>) -> ()) {
+        group.enter()
+        DispatchQueue.global().async(group: group) {
+            NetworkLayer.request(endpoint: LeagueLeaderEndpoint.getLeagueLeaders(stat: stat, statType: statType)) { [weak self] (result: Result<LeadersResponse, ErrorMessage>) in
+                switch result {
+                case .success(let data):
+                    let statLeaders = getLeagueLeaderArray(data: data, stat: stat, statType: statType)
+                    completion(.success(statLeaders))
+                    self?.group.leave()
+                case .failure(let error):
+                    print(error)
+                    completion(.failure(error))
+                    self?.group.leave()
+                }
+            }
+        }
+    }
+    
+    private func getStatLeaders(for stat: Stat) {
+        var typeOfStat = StatType.pitching
+        if stat == .hits || stat == .avg || stat == .hr || stat == .rbi || stat == .sb {
+            typeOfStat = .hitting
+        }
+        
+        group.enter()
+        DispatchQueue.global().async(group: group) {
+            self.getData(for: stat, statType: typeOfStat) { [weak self] res in
+                switch res {
+                case .success(let leaders):
+                    switch stat {
+                    case .avg:
+                        self?.avgLeaders = leaders
+                        self?.avgLeadersMain = leaders
+                    case .sb:
+                        self?.sbLeaders = leaders
+                        self?.sbLeadersMain = leaders
+                    case .hr:
+                        self?.hrLeaders = leaders
+                        self?.hrLeadersMain = leaders
+                    case .rbi:
+                        self?.rbiLeaders = leaders
+                        self?.rbiLeadersMain = leaders
+                    case .hits:
+                        self?.hitLeaders = leaders
+                        self?.hitLeadersMain = leaders
+                    case .era:
+                        self?.eraLeaders = leaders
+                        self?.eraLeadersMain = leaders
+                    case .wins:
+                        self?.winLeaders = leaders
+                        self?.winLeadersMain = leaders
+                    case .sv:
+                        self?.svLeaders = leaders
+                        self?.svLeadersMain = leaders
+                    case .so:
+                        self?.soLeaders = leaders
+                        self?.soLeadersMain = leaders
+                    case .whip:
+                        self?.whipLeaders = leaders
+                        self?.whipLeadersMain = leaders
+                    }
+                    self?.group.leave()
+                case .failure(let error):
+                    print(error)
+                    self?.group.leave()
+                }
+            }
+        }
+    }
+    
+    private func setAllLeagueLeaders() {
+        let stats = [Stat.hr, Stat.avg, Stat.hits, Stat.rbi, Stat.sb, Stat.wins, Stat.era, Stat.sv, Stat.so, Stat.whip]
+        group.enter()
+        DispatchQueue.global().async(group: group) {
+            var statIndex = 0
+            for _ in stats {
+                self.getStatLeaders(for: stats[statIndex])
+                statIndex += 1
+            }
+            self.group.leave()
+        }
     }
     
     func configureCollectionView() {
         let cv = UICollectionView(frame: .zero, collectionViewLayout: configureCollectionLayout())
         cv.frame = view.bounds
         view.addSubview(cv)
-    
+        
         self.collectionView = cv
         collectionView.backgroundColor = .tertiarySystemBackground
         collectionView.isScrollEnabled = false
@@ -72,21 +173,25 @@ class LeagueLeadersVC: UIViewController {
         ])
     }
     
+    private func setDefaultStats() {
+        self.hrLeaders = self.hrLeadersMain
+        self.avgLeaders = self.avgLeadersMain
+        self.rbiLeaders = self.rbiLeadersMain
+        self.sbLeaders = self.sbLeadersMain
+        self.hitLeaders = self.hitLeadersMain
+        
+        self.winLeaders = self.winLeadersMain
+        self.eraLeaders = self.eraLeadersMain
+        self.svLeaders = self.svLeadersMain
+        self.soLeaders = self.soLeadersMain
+    }
+    
     @objc func viewDidChange(_ segmentedControl: UISegmentedControl) {
         switch segmentedControl.selectedSegmentIndex {
         case 0:
             // Displays the original leaders list
             DispatchQueue.main.async {
-                self.hrLeaders = self.hrLeadersMain
-                self.avgLeaders = self.avgLeadersMain
-                self.rbiLeaders = self.rbiLeadersMain
-                self.sbLeaders = self.sbLeadersMain
-                self.hitLeaders = self.hitLeadersMain
-                
-                self.winLeaders = self.winLeadersMain
-                self.eraLeaders = self.eraLeadersMain
-                self.svLeaders = self.svLeadersMain
-                self.soLeaders = self.soLeadersMain
+                self.setDefaultStats()
                 self.collectionView.reloadData()
             }
         case 1:
@@ -113,19 +218,8 @@ class LeagueLeadersVC: UIViewController {
             self.whipLeaders = self.getLeagueLeaders(leagueLeaders: self.whipLeaders, for: league)
             self.collectionView.reloadData()
         }
-        self.hrLeaders = self.hrLeadersMain
-        self.avgLeaders = self.avgLeadersMain
-        self.rbiLeaders = self.rbiLeadersMain
-        self.sbLeaders = self.sbLeadersMain
-        self.hitLeaders = self.hitLeadersMain
-        
-        self.winLeaders = self.winLeadersMain
-        self.eraLeaders = self.eraLeadersMain
-        self.svLeaders = self.svLeadersMain
-        self.soLeaders = self.soLeadersMain
-        self.whipLeaders = self.whipLeadersMain
+        setDefaultStats()
     }
-    
     
     private func getLeagueLeaders(leagueLeaders: [LeagueLeaders], for league: String) -> [LeagueLeaders]{
         var leaders = [LeagueLeaders]()
@@ -136,88 +230,26 @@ class LeagueLeadersVC: UIViewController {
         }
         return leaders
     }
-        
     
-    func getLeagueLeaders() {
-        let dispatchGroup = DispatchGroup()
-        
-        let hittingStats = [Stat.hr, Stat.avg, Stat.hits, Stat.rbi, Stat.sb]
-        let pitchingStats = [Stat.wins, Stat.era, Stat.sv, Stat.so, Stat.whip]
-        let allStats = hittingStats + pitchingStats
-        
-        DispatchQueue.main.async {
-            // showing a spinner until the network call is complete and UI is updated
-            self.showSpinner()
-        }
-        
-        for stat in allStats {
-            DispatchQueue.global(qos: .background).async(group: dispatchGroup) {
-                dispatchGroup.enter()
-                
-                // keeps track of the current stat type
-                var hittingOrPitching: StatType!
-                
-                if hittingStats.contains(stat) {
-                    hittingOrPitching = .hitting
-                } else {
-                    hittingOrPitching = .pitching
-                }
-                
-                PlayerNetworkManager.shared.getLeagueLeaders(for: stat, statType: hittingOrPitching) { [weak self] result in
-                    switch result {
-                    case .success(let data):
-                        // data is an array of league leaders
-                        switch stat {
-                        case .avg:
-                            self?.avgLeaders = data
-                            self?.avgLeadersMain = data
-                        case .sb:
-                            self?.sbLeaders = data
-                            self?.sbLeadersMain = data
-                        case .hr:
-                            self?.hrLeaders = data
-                            self?.hrLeadersMain = data
-                        case .rbi:
-                            self?.rbiLeaders = data
-                            self?.rbiLeadersMain = data
-                        case .hits:
-                            self?.hitLeaders = data
-                            self?.hitLeadersMain = data
-                        case .era:
-                            self?.eraLeaders = data
-                            self?.eraLeadersMain = data
-                        case .wins:
-                            self?.winLeaders = data
-                            self?.winLeadersMain = data
-                        case .sv:
-                            self?.svLeaders = data
-                            self?.svLeadersMain = data
-                        case .so:
-                            self?.soLeaders = data
-                            self?.soLeadersMain = data
-                        case .whip:
-                            self?.whipLeaders = data
-                            self?.whipLeadersMain = data
-                        }
-                    case .failure(let error):
-                        self?.displayErrorMessage(error: error)
-                    }
-                    dispatchGroup.leave()
-                }
-            }
-        }
-        
-        dispatchGroup.notify(queue: .main) {
-            self.configureCollectionView()
-            self.configureSegmentedControl()
-            self.removeSpinner()
+    private func getOffsetIndexAndStatIndex(currentIndex: Int) -> (offsetIndex: Int, statIndex: Int) {
+        switch currentIndex {
+        case 1...5:
+            return (1, 0)
+        case 7...11:
+            return (7, 1)
+        case 13...17:
+            return (13, 2)
+        case 19...23:
+            return (19, 3)
+        default:
+            return (25, 4)
         }
     }
 }
 
 
 extension LeagueLeadersVC: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
-    // cellForItemAt located in extension folder
+    // cellForItemAt located in extension file
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         // 6 cells in the vertical group and 5 groups in total
@@ -233,91 +265,31 @@ extension LeagueLeadersVC: UICollectionViewDataSource, UICollectionViewDelegateF
         let vc = PlayerInfoVC()
         vc.modalPresentationStyle = .fullScreen
         navigationController?.pushViewController(vc, animated: true)
-
-        if indexPath.section == 0 {
-            vc.statType = .hitting
-            vc.isPitcher = false
-            for n in 1...5 {
+        
+        let hittingStats = [hrLeaders, hitLeaders, avgLeaders, sbLeaders, rbiLeaders]
+        let pitchingStats = [winLeaders, eraLeaders, soLeaders, svLeaders, whipLeaders]
+        
+        for n in 1...29 {
+            let statIndex = getOffsetIndexAndStatIndex(currentIndex: n).statIndex
+            let offsetIndex = getOffsetIndexAndStatIndex(currentIndex: n).offsetIndex
+            
+            if indexPath.section == 0 {
+                vc.statType = .hitting
+                vc.isPitcher = false
+                
                 if indexPath.item == n {
-                    vc.playerName = hrLeaders[n-1].name
-                    vc.playerID = hrLeaders[n-1].playerID
-                    vc.playerTeam = hrLeaders[n-1].teamName
+                    vc.playerName = hittingStats[statIndex][n-offsetIndex].name
+                    vc.playerID = hittingStats[statIndex][n-offsetIndex].playerID
+                    vc.playerTeam = hittingStats[statIndex][n-offsetIndex].teamName
                 }
-            }
-
-            for n in 7...11 {
+            } else {
+                vc.isPitcher = true
+                vc.statType = .pitching
+                
                 if indexPath.item == n {
-                    vc.playerName = hitLeaders[n-7].name
-                    vc.playerID = hitLeaders[n-7].playerID
-                    vc.playerTeam = hitLeaders[n-7].teamName
-                }
-            }
-
-            for n in 13...17 {
-                if indexPath.item == n {
-                    vc.playerName = avgLeaders[n-13].name
-                    vc.playerID = avgLeaders[n-13].playerID
-                    vc.playerTeam = avgLeaders[n-13].teamName
-                }
-            }
-
-            for n in 19...23 {
-                if indexPath.item == n {
-                    vc.playerName = sbLeaders[n-19].name
-                    vc.playerID = sbLeaders[n-19].playerID
-                    vc.playerTeam = sbLeaders[n-19].teamName
-                }
-            }
-
-            for n in 25...29 {
-                if indexPath.item == n {
-                    vc.playerName = rbiLeaders[n-25].name
-                    vc.playerID = rbiLeaders[n-25].playerID
-                    vc.playerTeam = rbiLeaders[n-25].teamName
-                }
-            }
-        }
-
-        if indexPath.section == 1 {
-            vc.isPitcher = true
-            vc.statType = .pitching
-            for n in 1...5 {
-                if indexPath.item == n {
-                    vc.playerName = winLeaders[n-1].name
-                    vc.playerID = winLeaders[n-1].playerID
-                    vc.playerTeam = winLeaders[n-1].teamName
-                }
-            }
-
-            for n in 7...11 {
-                if indexPath.item == n {
-                    vc.playerName = eraLeaders[n-7].name
-                    vc.playerID = eraLeaders[n-7].playerID
-                    vc.playerTeam = eraLeaders[n-7].teamName
-                }
-            }
-
-            for n in 13...17 {
-                if indexPath.item == n {
-                    vc.playerName = soLeaders[n-13].name
-                    vc.playerID = soLeaders[n-13].playerID
-                    vc.playerTeam = soLeaders[n-13].teamName
-                }
-            }
-
-            for n in 19...23 {
-                if indexPath.item == n {
-                    vc.playerName = svLeaders[n-19].name
-                    vc.playerID = svLeaders[n-19].playerID
-                    vc.playerTeam = svLeaders[n-19].teamName
-                }
-            }
-
-            for n in 25...29 {
-                if indexPath.item == n {
-                    vc.playerName = whipLeaders[n-25].name
-                    vc.playerID = whipLeaders[n-25].playerID
-                    vc.playerTeam = whipLeaders[n-25].teamName
+                    vc.playerName = pitchingStats[statIndex][n-offsetIndex].name
+                    vc.playerID = pitchingStats[statIndex][n-offsetIndex].playerID
+                    vc.playerTeam = pitchingStats[statIndex][n-offsetIndex].teamName
                 }
             }
         }

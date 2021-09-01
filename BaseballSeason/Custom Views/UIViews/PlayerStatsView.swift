@@ -101,9 +101,6 @@ class PlayerStatsView: UIView {
         stat12.leadingAnchor.constraint(equalTo: stat11.trailingAnchor).isActive = true
     }
     
-    
-    
-
     func setHittingStats(stats: PlayerStats) {
         let views = [stat1, stat2, stat3, stat4, stat5, stat6, stat7, stat8, stat9, stat10, stat11, stat12]
         
@@ -114,19 +111,7 @@ class PlayerStatsView: UIView {
             view.statTitleLabel.text = hittingTitles[x]
             x += 1
         }
-        
-        stat1.statValueLabel.text = stats.stat1
-        stat2.statValueLabel.text = stats.stat2
-        stat3.statValueLabel.text = stats.stat3
-        stat4.statValueLabel.text = stats.stat4
-        stat5.statValueLabel.text = stats.stat5
-        stat6.statValueLabel.text = stats.stat6
-        stat7.statValueLabel.text = stats.stat7
-        stat8.statValueLabel.text = stats.stat8
-        stat9.statValueLabel.text = stats.stat9
-        stat10.statValueLabel.text = stats.stat10
-        stat11.statValueLabel.text = stats.stat11
-        stat12.statValueLabel.text = stats.stat12
+        setStatLabelText(for: stats)
     }
     
     func setPitchingStats(stats: PlayerStats) {
@@ -138,18 +123,16 @@ class PlayerStatsView: UIView {
             view.statTitleLabel.text = pitchingTitles[x]
             x += 1
         }
+        setStatLabelText(for: stats)
+    }
+    
+    func setStatLabelText(for stats: PlayerStats) {
+        let statViews = [stat1, stat2, stat3, stat4, stat5, stat6, stat7, stat8, stat9, stat10, stat11, stat12]
+        let allStats = [stats.stat1, stats.stat2, stats.stat3, stats.stat4, stats.stat5, stats.stat6, stats.stat7, stats.stat8, stats.stat9, stats.stat10, stats.stat11, stats.stat12]
         
-        stat1.statValueLabel.text = stats.stat1
-        stat2.statValueLabel.text = stats.stat2
-        stat3.statValueLabel.text = stats.stat3
-        stat4.statValueLabel.text = stats.stat4
-        stat5.statValueLabel.text = stats.stat5
-        stat6.statValueLabel.text = stats.stat6
-        stat7.statValueLabel.text = stats.stat7
-        stat8.statValueLabel.text = stats.stat8
-        stat9.statValueLabel.text = stats.stat9
-        stat10.statValueLabel.text = stats.stat10
-        stat11.statValueLabel.text = stats.stat11
-        stat12.statValueLabel.text = stats.stat12
+        for n in 0..<allStats.count {
+            let currentStatView = statViews[n]
+            currentStatView.statValueLabel.text = allStats[n]
+        }
     }
 }

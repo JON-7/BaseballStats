@@ -43,34 +43,33 @@ class TeamStandingsVC: UIViewController {
         for division in divisions  {
             DispatchQueue.global(qos: .background).async(group: dispatchGroup) {
                 dispatchGroup.enter()
-                TeamNetworkManager.shared.getStandings(for: division) { [weak self] result in
+                NetworkLayer.request(endpoint: TeamInfoEndpoint.getStandings(division: division)) { (result: Result<Teams, ErrorMessage>) in
                     switch result {
                     case .success(let data):
-                        // data is an array of divisionStandings
+                        let standings = BaseballSeason.getDivisionStandings(data: data)
                         switch division {
                         case Division.alEast:
-                            self?.alEastStandings = data
+                            self.alEastStandings = standings
                         case Division.alCentral:
-                            self?.alCentralStandings = data
+                            self.alCentralStandings = standings
                         case Division.alWest:
-                            self?.alWestStandings = data
+                            self.alWestStandings = standings
                         case Division.nlEast:
-                            self?.nlEastStandings = data
+                            self.nlEastStandings = standings
                         case Division.nlCentral:
-                            self?.nlCentralStandings = data
+                            self.nlCentralStandings = standings
                         case Division.nlWest:
-                            self?.nlWestStandings = data
+                            self.nlWestStandings = standings
                         default:
                             break
                         }
                     case .failure(let error):
-                        self?.displayErrorMessage(error: error)
+                        self.displayErrorMessage(error: error)
                     }
                     dispatchGroup.leave()
                 }
             }
         }
-        
         dispatchGroup.notify(queue: .main) {
             self.configureCollectionView()
             self.removeSpinner()
@@ -125,6 +124,30 @@ class TeamStandingsVC: UIViewController {
             }
         }
     }
+    
+    private func getTeamStandingIndex(currentIndex: Int) -> Int {
+        if currentIndex == 1 || currentIndex == 7 || currentIndex == 13 {
+            return 0
+        } else if currentIndex == 2 || currentIndex == 8 || currentIndex == 14 {
+            return 1
+        } else if currentIndex == 3 || currentIndex == 9 || currentIndex == 15 {
+            return 2
+        } else if currentIndex == 4 || currentIndex == 10 || currentIndex == 16 {
+            return 3
+        } else {
+            return 4
+        }
+    }
+    
+    private func getDivisionIndex(currentIndex: Int) -> Int {
+        if currentIndex < 7 {
+            return 0
+        } else if currentIndex >= 7 && currentIndex < 12 {
+            return 1
+        } else {
+            return 2
+        }
+    }
 }
 
 extension TeamStandingsVC: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
@@ -143,105 +166,24 @@ extension TeamStandingsVC: UICollectionViewDataSource, UICollectionViewDelegateF
         vc.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(vc, animated: true)
         
-        if indexPath.section == 0 {
-            switch indexPath.item {
-            case 1:
-                vc.teamName = alEastStandings[0].name
-                vc.teamID = alEastStandings[0].teamID
-            case 2:
-                vc.teamName = alEastStandings[1].name
-                vc.teamID = alEastStandings[1].teamID
-            case 3:
-                vc.teamName = alEastStandings[2].name
-                vc.teamID = alEastStandings[2].teamID
-            case 4:
-                vc.teamName = alEastStandings[3].name
-                vc.teamID = alEastStandings[3].teamID
-            case 5:
-                vc.teamName = alEastStandings[4].name
-                vc.teamID = alEastStandings[4].teamID
-            case 7:
-                vc.teamName = alCentralStandings[0].name
-                vc.teamID = alCentralStandings[0].teamID
-            case 8:
-                vc.teamName = alCentralStandings[1].name
-                vc.teamID = alCentralStandings[1].teamID
-            case 9:
-                vc.teamName = alCentralStandings[2].name
-                vc.teamID = alCentralStandings[2].teamID
-            case 10:
-                vc.teamName = alCentralStandings[3].name
-                vc.teamID = alCentralStandings[3].teamID
-            case 11:
-                vc.teamName = alCentralStandings[4].name
-                vc.teamID = alCentralStandings[4].teamID
-            case 13:
-                vc.teamName = alWestStandings[0].name
-                vc.teamID = alWestStandings[0].teamID
-            case 14:
-                vc.teamName = alWestStandings[1].name
-                vc.teamID = alWestStandings[1].teamID
-            case 15:
-                vc.teamName = alWestStandings[2].name
-                vc.teamID = alWestStandings[2].teamID
-            case 16:
-                vc.teamName = alWestStandings[3].name
-                vc.teamID = alWestStandings[3].teamID
-            case 17:
-                vc.teamName = alWestStandings[4].name
-                vc.teamID = alWestStandings[4].teamID
-            default:
-                break
-            }
-        }
+        let alDivisions = [alEastStandings, alCentralStandings, alWestStandings]
+        let nlDivisions = [nlEastStandings, nlCentralStandings, nlWestStandings]
         
-        if indexPath.section == 1 {
+        for n in 1...17 {
+            let standingIndex = getTeamStandingIndex(currentIndex: n)
+            let divisionIndex = getDivisionIndex(currentIndex: n)
+            
             switch indexPath.item {
-            case 1:
-                vc.teamName = nlEastStandings[0].name
-                vc.teamID = nlEastStandings[0].teamID
-            case 2:
-                vc.teamName = nlEastStandings[1].name
-                vc.teamID = nlEastStandings[1].teamID
-            case 3:
-                vc.teamName = nlEastStandings[2].name
-                vc.teamID = nlEastStandings[2].teamID
-            case 4:
-                vc.teamName = nlEastStandings[3].name
-                vc.teamID = nlEastStandings[3].teamID
-            case 5:
-                vc.teamName = nlEastStandings[4].name
-                vc.teamID = nlEastStandings[4].teamID
-            case 7:
-                vc.teamName = nlCentralStandings[0].name
-                vc.teamID = nlCentralStandings[0].teamID
-            case 8:
-                vc.teamName = nlCentralStandings[1].name
-                vc.teamID = nlCentralStandings[1].teamID
-            case 9:
-                vc.teamName = nlCentralStandings[2].name
-                vc.teamID = nlCentralStandings[2].teamID
-            case 10:
-                vc.teamName = nlCentralStandings[3].name
-                vc.teamID = nlCentralStandings[3].teamID
-            case 11:
-                vc.teamName = nlCentralStandings[4].name
-                vc.teamID = nlCentralStandings[4].teamID
-            case 13:
-                vc.teamName = nlWestStandings[0].name
-                vc.teamID = nlWestStandings[0].teamID
-            case 14:
-                vc.teamName = nlWestStandings[1].name
-                vc.teamID = nlWestStandings[1].teamID
-            case 15:
-                vc.teamName = nlWestStandings[2].name
-                vc.teamID = nlWestStandings[2].teamID
-            case 16:
-                vc.teamName = nlWestStandings[3].name
-                vc.teamID = nlWestStandings[3].teamID
-            case 17:
-                vc.teamName = nlWestStandings[4].name
-                vc.teamID = nlWestStandings[4].teamID
+            case 6,12:
+                break
+            case n:
+                if indexPath.section == 0 {
+                    vc.teamName = alDivisions[divisionIndex][standingIndex].name
+                    vc.teamID = alDivisions[divisionIndex][standingIndex].teamID
+                } else {
+                    vc.teamName = nlDivisions[divisionIndex][standingIndex].name
+                    vc.teamID = nlDivisions[divisionIndex][standingIndex].teamID
+                }
             default:
                 break
             }

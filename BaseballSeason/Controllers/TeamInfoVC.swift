@@ -21,7 +21,7 @@ class TeamInfoVC: UIViewController {
         navigationController?.isNavigationBarHidden = false
         navigationController?.navigationBar.tintColor = .white
     }
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         configureView()
@@ -46,13 +46,13 @@ class TeamInfoVC: UIViewController {
         
         DispatchQueue.global(qos: .background).async(group: dispatchGroup) {
             dispatchGroup.enter()
-            
-            TeamNetworkManager.shared.getFullRoster(teamID: teamID) { [weak self] result in
+            NetworkLayer.request(endpoint: TeamInfoEndpoint.getFullRoster(teamID: teamID)) { (result: Result<RosterResponse, ErrorMessage>) in
                 switch result {
                 case .success(let data):
-                    self?.fullRoster = data
+                    let roster = getTeamRoster(data: data)
+                    self.fullRoster = roster
                 case .failure(let error):
-                    self?.displayErrorMessage(error: error)
+                    self.displayErrorMessage(error: error)
                 }
                 dispatchGroup.leave()
             }
@@ -128,7 +128,7 @@ class TeamInfoVC: UIViewController {
         collectionView.dataSource = self
         collectionView.delegate = self
         collectionView.register(RosterCell.self, forCellWithReuseIdentifier: RosterCell.reuseID)
-        collectionView.backgroundColor = .lightGray
+        collectionView.backgroundColor = getTeamInfo(teamName: teamName).color
         collectionView.clipsToBounds = true
         collectionView.layer.cornerRadius = 16
         

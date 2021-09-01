@@ -33,8 +33,14 @@ class StandingsCollectionCell: UICollectionViewCell {
         teamView.backgroundColor = getTeamInfo(teamName: standings[index].name).color
         teamView.teamRecord.text = "\(standings[index].wins ) - \(standings[index].loses )"
         
-        let difference = (standings[0].wins - standings[0].loses) - (standings[index].wins - standings[index].loses)
-        let gamesBehind: Double = Double(difference / 2)
+        let leadingDivisionWins = Double(standings[0].wins)
+        let leadingDivisionLoses = Double(standings[0].loses)
+        let teamWins = Double(standings[index].wins)
+        let teamLoses = Double(standings[index].loses)
+        
+        let difference = (leadingDivisionWins - leadingDivisionLoses) - (teamWins - teamLoses)
+        let gamesBehind = difference/2
+        
         if gamesBehind == 0 {
             teamView.gamesBehindLabel.text = "GB: -"
         } else {
@@ -48,5 +54,20 @@ class StandingsCollectionCell: UICollectionViewCell {
         teamView.backgroundColor = .tertiarySystemGroupedBackground
         teamView.gamesBehindLabel.text = .none
         teamView.teamRecord.text = .none
+    }
+    
+    func setTopCornerRadius() {
+        teamView.layer.cornerRadius = 16
+        teamView.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
+        isUserInteractionEnabled = false
+    }
+
+    func setBottomCornerRadius() {
+        teamView.layer.cornerRadius = 16
+        teamView.layer.maskedCorners = [.layerMinXMaxYCorner, .layerMaxXMaxYCorner ]
+    }
+
+    func defaultCorner() {
+        teamView.layer.cornerRadius = 0
     }
 }

@@ -14,8 +14,8 @@ class PlayerInfoVC: UIViewController {
     var playerID: String!
     var playerTeam: String!
     var isPitcher: Bool!
-    var playerSeasonStats: PlayerStats!
-    var playerCareerStats: PlayerStats!
+    var playerSeasonStats: PlayerStats?
+    var playerCareerStats: PlayerStats?
     var statType: StatType!
     
     let playerIntroView = PlayerIntroView()
@@ -107,55 +107,75 @@ class PlayerInfoVC: UIViewController {
     }
     
     func getPlayerIntro() {
-        let dispatchGroup = DispatchGroup()
-        
+        let group = DispatchGroup()
         DispatchQueue.main.async {
             self.showSpinner()
         }
         
-        DispatchQueue.global(qos: .background).async(group: dispatchGroup) {
-            dispatchGroup.enter()
-            
-            PlayerNetworkManager.shared.getPlayerInfo(for: self.playerName) { [weak self] result in
+        DispatchQueue.global(qos: .background).async(group: group) {
+            group.enter()
+            NetworkLayer.request(endpoint: PlayerInfoEndpoint.getPlayerInfo(playerName: self.playerName)) { (result: Result<PlayerInfoResponse, ErrorMessage>) in
                 switch result {
                 case .success(let data):
-                    self?.playerIntro = data
+                    self.playerIntro = getPlayerInfo(for: data)
                 case .failure(let error):
-                    self?.displayErrorMessage(error: error)
+                    self.displayErrorMessage(error: error)
                 }
-                dispatchGroup.leave()
+                group.leave()
             }
         }
         
-        DispatchQueue.global(qos: .background).async(group: dispatchGroup) {
-            dispatchGroup.enter()
-            
-            PlayerNetworkManager.shared.getPlayerSeasonStats(playerID: self.playerID, statType: self.statType) { [weak self] result in
-                switch result {
-                case .success(let data):
-                    self?.playerSeasonStats = data
-                case .failure(let error):
-                    self?.displayErrorMessage(error: error)
+        DispatchQueue.global(qos: .background).async(group: group) {
+            group.enter()
+            if self.statType == .hitting {
+                NetworkLayer.request(endpoint: PlayerInfoEndpoint.getPlayerSeasonStats(playerID: self.playerID, statType: self.statType)) { (result: Result<HittingStats, ErrorMessage>) in
+                    switch result {
+                    case .success(let data):
+                        self.playerSeasonStats = getSeasonHittingStats(data: data)
+                    case .failure(let error):
+                        self.displayErrorMessage(error: error)
+                    }
+                    group.leave()
                 }
-                dispatchGroup.leave()
+            } else {
+                NetworkLayer.request(endpoint: PlayerInfoEndpoint.getPlayerSeasonStats(playerID: self.playerID, statType: self.statType)) { (result: Result<PitchingStats, ErrorMessage>) in
+                    switch result {
+                    case .success(let data):
+                        self.playerSeasonStats = getSeasonPitchingStats(data: data)
+                    case .failure(let error):
+                        self.displayErrorMessage(error: error)
+                    }
+                    group.leave()
+                }
             }
         }
         
-        DispatchQueue.global(qos: .background).async(group: dispatchGroup) {
-            dispatchGroup.enter()
-            
-            PlayerNetworkManager.shared.getPlayerCareerStats(playerID: self.playerID, statType: self.statType) { [weak self] result in
-                switch result {
-                case .success(let data):
-                    self?.playerCareerStats = data
-                case .failure(let error):
-                    self?.displayErrorMessage(error: error)
+        DispatchQueue.global(qos: .background).async(group: group) {
+            group.enter()
+            if self.statType == .hitting {
+                NetworkLayer.request(endpoint: PlayerInfoEndpoint.getPlayerCareerStats(playerID: self.playerID, statType: self.statType)) { (result: Result<CareerHittingStats, ErrorMessage>) in
+                    switch result {
+                    case .success(let data):
+                        self.playerCareerStats = getCareerHittingStats(data: data)
+                    case .failure(let error):
+                        self.displayErrorMessage(error: error)
+                    }
+                    group.leave()
                 }
-                dispatchGroup.leave()
+            } else {
+                NetworkLayer.request(endpoint: PlayerInfoEndpoint.getPlayerCareerStats(playerID: self.playerID, statType: self.statType)) { (result: Result<CareerPitchingStats, ErrorMessage>) in
+                    switch result {
+                    case .success(let data):
+                        self.playerCareerStats = getCareerPitchingStats(data: data)
+                    case .failure(let error):
+                        self.displayErrorMessage(error: error)
+                    }
+                    group.leave()
+                }
             }
         }
         
-        dispatchGroup.notify(queue: .main) {
+        group.notify(queue: .main) {
             self.configurePlayerInfo()
             self.configureSeasonStats()
             self.configureCareerStats()
@@ -181,10 +201,12 @@ class PlayerInfoVC: UIViewController {
         view.addSubview(seasonStatsView)
         seasonStatsView.translatesAutoresizingMaskIntoConstraints = false
         
+        let emptyStats = PlayerStats(stat1: "", stat2: "", stat3: "", stat4: "", stat5: "", stat6: "", stat7: "", stat8: "", stat9: "", stat10: "", stat11: "", stat12: "")
+        
         if statType == .hitting {
-            seasonStatsView.setHittingStats(stats: playerSeasonStats)
+            seasonStatsView.setHittingStats(stats: playerSeasonStats ?? emptyStats)
         } else {
-            seasonStatsView.setPitchingStats(stats: playerSeasonStats)
+            seasonStatsView.setPitchingStats(stats: playerSeasonStats ?? emptyStats)
         }
         
         NSLayoutConstraint.activate([
@@ -195,12 +217,14 @@ class PlayerInfoVC: UIViewController {
     }
     
     private func configureCareerStats() {
+        let emptyStats = PlayerStats(stat1: "", stat2: "", stat3: "", stat4: "", stat5: "", stat6: "", stat7: "", stat8: "", stat9: "", stat10: "", stat11: "", stat12: "")
+        
         view.addSubview(careerStatsView)
         careerStatsView.translatesAutoresizingMaskIntoConstraints = false
         if statType == .hitting {
-            careerStatsView.setHittingStats(stats: playerCareerStats)
+            careerStatsView.setHittingStats(stats: playerCareerStats ?? emptyStats)
         } else {
-            careerStatsView.setPitchingStats(stats: playerCareerStats)
+            careerStatsView.setPitchingStats(stats: playerCareerStats ?? emptyStats)
         }
         
         NSLayoutConstraint.activate([
