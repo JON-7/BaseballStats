@@ -27,7 +27,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let favoritesVC = UINavigationController(rootViewController: FavoritesVC())
         let tabbar = UITabBarController()
         
-        tabbar.setViewControllers([leadersVC, standingsVC, favoritesVC], animated: true)
+        tabbar.setViewControllers([standingsVC, leadersVC, favoritesVC], animated: true)
         tabbar.tabBar.backgroundColor = .white
         
         let images = [SFName.chart, SFName.people, SFName.circleStar]

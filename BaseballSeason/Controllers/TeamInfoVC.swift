@@ -46,13 +46,13 @@ class TeamInfoVC: UIViewController {
         
         DispatchQueue.global(qos: .background).async(group: dispatchGroup) {
             dispatchGroup.enter()
-            NetworkLayer.request(endpoint: TeamInfoEndpoint.getFullRoster(teamID: teamID)) { (result: Result<RosterResponse, ErrorMessage>) in
+            NetworkLayer.request(endpoint: TeamInfoEndpoint.getFullRoster(teamID: teamID)) { [weak self] (result: Result<RosterResponse, ErrorMessage>) in
                 switch result {
                 case .success(let data):
-                    let roster = getTeamRoster(data: data)
-                    self.fullRoster = roster
+                    let roster = PlayerNetworkManager.shared.getTeamRoster(data: data)
+                    self?.fullRoster = roster
                 case .failure(let error):
-                    self.displayErrorMessage(error: error)
+                    self?.displayErrorMessage(error: error)
                 }
                 dispatchGroup.leave()
             }

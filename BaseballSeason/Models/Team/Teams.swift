@@ -37,21 +37,3 @@ struct Win: Codable {
 struct Lose: Codable {
     let total: Int
 }
-
-
-func getDivisionStandings(data: Teams) -> [DivisionStanding] {
-    var teamResults = [DivisionStanding]()
-    
-    for n in 0...4 {
-        let results = data.response.first![n]
-        let position = results.position
-        let teamName = results.team.name
-        let teamID = results.team.id
-        let wins = results.games.win.total
-        let loses = results.games.lose.total
-        let winPercentage = (Double(wins + loses) / Double(wins)) * 0.1
-        let standing = DivisionStanding(name: teamName, position: position, wins: wins, loses: loses, teamID: teamID, winPercentage: winPercentage)
-        teamResults.append(standing)
-    }
-    return teamResults
-}

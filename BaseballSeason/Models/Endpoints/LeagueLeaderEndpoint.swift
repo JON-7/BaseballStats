@@ -40,7 +40,7 @@ enum LeagueLeaderEndpoint: Endpoint {
         let year = Calendar.current.component(.year, from: Date())
         switch self {
         case .getLeagueLeaders(let stat, _):
-            let leadingStat = getStat(stat: stat)
+            let leadingStat = PlayerNetworkManager.shared.getStat(stat: stat)
             return [URLQueryItem(name: "results", value: "50"),
                     URLQueryItem(name: "season", value: "\(year)"),
                     URLQueryItem(name: "sort_column", value: leadingStat)]

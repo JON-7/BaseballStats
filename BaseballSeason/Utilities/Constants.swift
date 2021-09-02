@@ -11,9 +11,11 @@ enum Division {
     static let alEast = "AL EAST"
     static let alCentral = "AL Central"
     static let alWest = "AL West"
+    static let alWildCard = "AL Wild Card"
     static let nlEast = "NL East"
     static let nlCentral = "NL Central"
     static let nlWest = "NL West"
+    static let nlWildCard = "NL Wild Card"
 }
 
 enum StatType {

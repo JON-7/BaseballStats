@@ -24,12 +24,14 @@ extension TeamStandingsVC {
             cell.defaultCorner()
         }
         
-        if indexPath.item == 5 || indexPath.item == 11 || indexPath.item == 17 {
+        if indexPath.item == 5 || indexPath.item == 11 || indexPath.item == 17 || indexPath.item == 23 {
             cell.setBottomCornerRadius()
         }
         
-        let ALTitleCellDictionary: [Int: String] = [0: Division.alEast, 6: Division.alCentral, 12: Division.alWest]
-        let NLTitleCellDictionary: [Int: String] = [0: Division.nlEast, 6: Division.nlCentral, 12: Division.nlWest]
+        let ALTitleCellDictionary: [Int: String] = [0: Division.alEast, 6: Division.alCentral,
+                                                    12: Division.alWest, 18: Division.alWildCard]
+        let NLTitleCellDictionary: [Int: String] = [0: Division.nlEast, 6: Division.nlCentral,
+                                                    12: Division.nlWest, 18: Division.nlWildCard]
         
         let currentIndex = indexPath.item
         let currentALDivision = ALTitleCellDictionary[currentIndex] ?? ""
@@ -38,15 +40,17 @@ extension TeamStandingsVC {
         // MARK: Creating AL standings cells
         if indexPath.section == 0 {
             switch indexPath.item {
-            case 0, 6, 12:
+            case 0, 6, 12, 18:
                 cell.configureDivisionTitle(division: currentALDivision)
                 cell.setTopCornerRadius()
             case 1...5:
-                cell.configureMainView(standings: sortedALEast, index: currentIndex-1)
+                cell.configureMainView(standings: sortedALEast, index: currentIndex-1, isDivisionStanding: true)
             case 7...11:
-                cell.configureMainView(standings: sortedALCentral, index: currentIndex-7)
+                cell.configureMainView(standings: sortedALCentral, index: currentIndex-7, isDivisionStanding: true)
             case 13...17:
-                cell.configureMainView(standings: sortedALWest, index: currentIndex-13)
+                cell.configureMainView(standings: sortedALWest, index: currentIndex-13, isDivisionStanding: true)
+            case 19...23:
+                cell.configureMainView(standings: alWildCardStandings, index: currentIndex-19, isDivisionStanding: false)
             default:
                 break
             }
@@ -55,15 +59,17 @@ extension TeamStandingsVC {
         // MARK: Creating NL standings cells
         if indexPath.section == 1 {
             switch indexPath.item {
-            case 0, 6, 12:
+            case 0, 6, 12, 18:
                 cell.configureDivisionTitle(division: currentNLDivision)
                 cell.setTopCornerRadius()
             case 1...5:
-                cell.configureMainView(standings: sortedNLEast, index: currentIndex-1)
+                cell.configureMainView(standings: sortedNLEast, index: currentIndex-1, isDivisionStanding: true)
             case 7...11:
-                cell.configureMainView(standings: sortedNLCentral, index: currentIndex-7)
+                cell.configureMainView(standings: sortedNLCentral, index: currentIndex-7, isDivisionStanding: true)
             case 13...17:
-                cell.configureMainView(standings: sortedNLWest, index: currentIndex-13)
+                cell.configureMainView(standings: sortedNLWest, index: currentIndex-13, isDivisionStanding: true)
+            case 19...23:
+                cell.configureMainView(standings: nlWildCardStandings, index: currentIndex-19, isDivisionStanding: false)
             default:
                 break
             }

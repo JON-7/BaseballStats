@@ -25,7 +25,9 @@ extension UIViewController {
     }
     
     func removeSpinner() {
-        loadingView?.removeFromSuperview()
+        DispatchQueue.main.async {
+            loadingView?.removeFromSuperview()
+        }
     }
     
     // collectionView layout for standings and league leaders

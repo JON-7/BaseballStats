@@ -12,10 +12,12 @@ class TeamStandingsVC: UIViewController {
     var alEastStandings = [DivisionStanding]()
     var alCentralStandings = [DivisionStanding]()
     var alWestStandings = [DivisionStanding]()
+    var alWildCardStandings = [DivisionStanding]()
     
     var nlEastStandings = [DivisionStanding]()
     var nlCentralStandings = [DivisionStanding]()
     var nlWestStandings = [DivisionStanding]()
+    var nlWildCardStandings = [DivisionStanding]()
     
     var segmentedControl = UISegmentedControl(items: ["Standings", "Leaders"])
     let leagueLeadersVC = LeagueLeadersVC()
@@ -43,37 +45,63 @@ class TeamStandingsVC: UIViewController {
         for division in divisions  {
             DispatchQueue.global(qos: .background).async(group: dispatchGroup) {
                 dispatchGroup.enter()
-                NetworkLayer.request(endpoint: TeamInfoEndpoint.getStandings(division: division)) { (result: Result<Teams, ErrorMessage>) in
+                NetworkLayer.request(endpoint: TeamInfoEndpoint.getStandings(division: division)) { [weak self] (result: Result<Teams, ErrorMessage>) in
                     switch result {
                     case .success(let data):
-                        let standings = BaseballSeason.getDivisionStandings(data: data)
+                        let standings = PlayerNetworkManager.shared.getDivisionStandings(data: data)
                         switch division {
                         case Division.alEast:
-                            self.alEastStandings = standings
+                            self?.alEastStandings = standings
                         case Division.alCentral:
-                            self.alCentralStandings = standings
+                            self?.alCentralStandings = standings
                         case Division.alWest:
-                            self.alWestStandings = standings
+                            self?.alWestStandings = standings
                         case Division.nlEast:
-                            self.nlEastStandings = standings
+                            self?.nlEastStandings = standings
                         case Division.nlCentral:
-                            self.nlCentralStandings = standings
+                            self?.nlCentralStandings = standings
                         case Division.nlWest:
-                            self.nlWestStandings = standings
+                            self?.nlWestStandings = standings
                         default:
                             break
                         }
                     case .failure(let error):
-                        self.displayErrorMessage(error: error)
+                        self?.displayErrorMessage(error: error)
                     }
                     dispatchGroup.leave()
                 }
             }
         }
         dispatchGroup.notify(queue: .main) {
+            self.alWildCardStandings = self.setWildCardStandings(for: League.al)
+            self.nlWildCardStandings = self.setWildCardStandings(for: League.nl)
             self.configureCollectionView()
             self.removeSpinner()
         }
+    }
+    
+    func setWildCardStandings(for league: String) -> [DivisionStanding] {
+        var leagueStandings = [DivisionStanding]()
+        var allWildcardTeams = [DivisionStanding]()
+        var topWildCardTeams = [DivisionStanding]()
+        
+        if league == League.al {
+            leagueStandings = alEastStandings + alCentralStandings + alWestStandings
+        } else {
+            leagueStandings = nlEastStandings + nlCentralStandings + nlWestStandings
+        }
+        
+        for team in leagueStandings {
+            if team.position != 1 {
+                allWildcardTeams.append(team)
+            }
+        }
+        
+        let sortedStandings = allWildcardTeams.sorted { $0.winPercentage < $1.winPercentage}
+        for n in 0..<5 {
+            topWildCardTeams.append(sortedStandings[n])
+        }
+        return topWildCardTeams
     }
     
     func configureSegmentedControl() {
@@ -124,36 +152,12 @@ class TeamStandingsVC: UIViewController {
             }
         }
     }
-    
-    private func getTeamStandingIndex(currentIndex: Int) -> Int {
-        if currentIndex == 1 || currentIndex == 7 || currentIndex == 13 {
-            return 0
-        } else if currentIndex == 2 || currentIndex == 8 || currentIndex == 14 {
-            return 1
-        } else if currentIndex == 3 || currentIndex == 9 || currentIndex == 15 {
-            return 2
-        } else if currentIndex == 4 || currentIndex == 10 || currentIndex == 16 {
-            return 3
-        } else {
-            return 4
-        }
-    }
-    
-    private func getDivisionIndex(currentIndex: Int) -> Int {
-        if currentIndex < 7 {
-            return 0
-        } else if currentIndex >= 7 && currentIndex < 12 {
-            return 1
-        } else {
-            return 2
-        }
-    }
 }
 
 extension TeamStandingsVC: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         // 6 cells in each vertical group and there are 3 horizontal groups
-        return 18
+        return 24
     }
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
@@ -166,15 +170,15 @@ extension TeamStandingsVC: UICollectionViewDataSource, UICollectionViewDelegateF
         vc.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(vc, animated: true)
         
-        let alDivisions = [alEastStandings, alCentralStandings, alWestStandings]
-        let nlDivisions = [nlEastStandings, nlCentralStandings, nlWestStandings]
+        let alDivisions = [alEastStandings, alCentralStandings, alWestStandings, alWildCardStandings]
+        let nlDivisions = [nlEastStandings, nlCentralStandings, nlWestStandings, nlWildCardStandings]
         
-        for n in 1...17 {
-            let standingIndex = getTeamStandingIndex(currentIndex: n)
-            let divisionIndex = getDivisionIndex(currentIndex: n)
+        for n in 1...23 {
+            let standingIndex = PlayerNetworkManager.shared.getTeamStandingIndex(currentIndex: n)
+            let divisionIndex = PlayerNetworkManager.shared.getDivisionIndex(currentIndex: n)
             
             switch indexPath.item {
-            case 6,12:
+            case 6,12,18:
                 break
             case n:
                 if indexPath.section == 0 {

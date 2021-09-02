@@ -51,6 +51,7 @@ class LeadersCollectionCell: UICollectionViewCell {
     func setBottomCornerRadius() {
         statView.layer.cornerRadius = 16
         statView.layer.maskedCorners = [.layerMinXMaxYCorner, .layerMaxXMaxYCorner ]
+        isUserInteractionEnabled = true
     }
     
     func defaultCell() {

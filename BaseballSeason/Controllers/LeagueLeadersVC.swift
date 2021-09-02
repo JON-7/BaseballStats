@@ -69,7 +69,7 @@ class LeagueLeadersVC: UIViewController {
             NetworkLayer.request(endpoint: LeagueLeaderEndpoint.getLeagueLeaders(stat: stat, statType: statType)) { [weak self] (result: Result<LeadersResponse, ErrorMessage>) in
                 switch result {
                 case .success(let data):
-                    let statLeaders = getLeagueLeaderArray(data: data, stat: stat, statType: statType)
+                    let statLeaders = PlayerNetworkManager.shared.getLeagueLeaderArray(data: data, stat: stat, statType: statType)
                     completion(.success(statLeaders))
                     self?.group.leave()
                 case .failure(let error):

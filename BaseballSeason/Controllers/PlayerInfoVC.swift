@@ -82,6 +82,7 @@ class PlayerInfoVC: UIViewController {
                 NotificationCenter.default.post(name: Notification.Name(NotificationName.reloadFavoriteTable), object: nil)
             }
             isFavorite = false
+            saveUserDefaults()
             
         } else {
             DispatchQueue.main.async {
@@ -90,19 +91,20 @@ class PlayerInfoVC: UIViewController {
             
             let player = FavoritePlayers(name: playerName, playerID: playerID, isPitcher: isPitcher, teamName: playerTeam)
             PlayerNetworkManager.shared.favorites.append(player)
+            saveUserDefaults()
             
-            // saving
-            do {
-                let encoder = JSONEncoder()
-                let data = try encoder.encode(PlayerNetworkManager.shared.favorites)
-                UserDefaults.standard.set(data, forKey: "favoritePlayer")
-                print("added \(player)")
-            } catch {
-                displayErrorMessage(error: ErrorMessage.addingFavFailed)
-            }
-            // sending notification to reload the favorite players table view
             NotificationCenter.default.post(name: Notification.Name(NotificationName.reloadFavoriteTable), object: nil)
             self.isFavorite = true
+        }
+    }
+    
+    func saveUserDefaults() {
+        do {
+            let encoder = JSONEncoder()
+            let data = try encoder.encode(PlayerNetworkManager.shared.favorites)
+            UserDefaults.standard.set(data, forKey: KeyName.favoritePlayer)
+        } catch {
+            displayErrorMessage(error: ErrorMessage.addingFavFailed)
         }
     }
     
@@ -112,63 +114,67 @@ class PlayerInfoVC: UIViewController {
             self.showSpinner()
         }
         
+        group.enter()
         DispatchQueue.global(qos: .background).async(group: group) {
-            group.enter()
-            NetworkLayer.request(endpoint: PlayerInfoEndpoint.getPlayerInfo(playerName: self.playerName)) { (result: Result<PlayerInfoResponse, ErrorMessage>) in
+            NetworkLayer.request(endpoint: PlayerInfoEndpoint.getPlayerInfo(playerName: self.playerName)) { [weak self] (result: Result<PlayerInfoResponse, ErrorMessage>) in
                 switch result {
                 case .success(let data):
-                    self.playerIntro = getPlayerInfo(for: data)
+                    self?.playerIntro = PlayerNetworkManager.shared.getPlayerInfo(for: data)
                 case .failure(let error):
-                    self.displayErrorMessage(error: error)
+                    self?.removeSpinner()
+                    self?.displayErrorMessage(error: error)
                 }
                 group.leave()
             }
         }
         
+        group.enter()
         DispatchQueue.global(qos: .background).async(group: group) {
-            group.enter()
             if self.statType == .hitting {
-                NetworkLayer.request(endpoint: PlayerInfoEndpoint.getPlayerSeasonStats(playerID: self.playerID, statType: self.statType)) { (result: Result<HittingStats, ErrorMessage>) in
+                NetworkLayer.request(endpoint: PlayerInfoEndpoint.getPlayerSeasonStats(playerID: self.playerID, statType: self.statType)) { [weak self] (result: Result<HittingStats, ErrorMessage>) in
                     switch result {
                     case .success(let data):
-                        self.playerSeasonStats = getSeasonHittingStats(data: data)
+                        self?.playerSeasonStats = PlayerNetworkManager.shared.getSeasonHittingStats(data: data)
                     case .failure(let error):
-                        self.displayErrorMessage(error: error)
+                        self?.removeSpinner()
+                        self?.displayErrorMessage(error: error)
                     }
                     group.leave()
                 }
             } else {
-                NetworkLayer.request(endpoint: PlayerInfoEndpoint.getPlayerSeasonStats(playerID: self.playerID, statType: self.statType)) { (result: Result<PitchingStats, ErrorMessage>) in
+                NetworkLayer.request(endpoint: PlayerInfoEndpoint.getPlayerSeasonStats(playerID: self.playerID, statType: self.statType)) { [weak self] (result: Result<PitchingStats, ErrorMessage>) in
                     switch result {
                     case .success(let data):
-                        self.playerSeasonStats = getSeasonPitchingStats(data: data)
+                        self?.playerSeasonStats = PlayerNetworkManager.shared.getSeasonPitchingStats(data: data)
                     case .failure(let error):
-                        self.displayErrorMessage(error: error)
+                        self?.removeSpinner()
+                        self?.displayErrorMessage(error: error)
                     }
                     group.leave()
                 }
             }
         }
-        
+        group.enter()
         DispatchQueue.global(qos: .background).async(group: group) {
-            group.enter()
             if self.statType == .hitting {
-                NetworkLayer.request(endpoint: PlayerInfoEndpoint.getPlayerCareerStats(playerID: self.playerID, statType: self.statType)) { (result: Result<CareerHittingStats, ErrorMessage>) in
+                NetworkLayer.request(endpoint: PlayerInfoEndpoint.getPlayerCareerStats(playerID: self.playerID, statType: self.statType)) { [weak self] (result: Result<CareerHittingStats, ErrorMessage>) in
                     switch result {
                     case .success(let data):
-                        self.playerCareerStats = getCareerHittingStats(data: data)
+                        self?.playerCareerStats = PlayerNetworkManager.shared.getCareerHittingStats(data: data)
                     case .failure(let error):
-                        self.displayErrorMessage(error: error)
+                        self?.removeSpinner()
+                        self?.displayErrorMessage(error: error)
                     }
                     group.leave()
                 }
             } else {
-                NetworkLayer.request(endpoint: PlayerInfoEndpoint.getPlayerCareerStats(playerID: self.playerID, statType: self.statType)) { (result: Result<CareerPitchingStats, ErrorMessage>) in
+                NetworkLayer.request(endpoint: PlayerInfoEndpoint.getPlayerCareerStats(playerID: self.playerID, statType: self.statType)) { [weak self] (result: Result<CareerPitchingStats, ErrorMessage>) in
                     switch result {
                     case .success(let data):
-                        self.playerCareerStats = getCareerPitchingStats(data: data)
+                        self?.playerCareerStats = PlayerNetworkManager.shared.getCareerPitchingStats(data: data)
                     case .failure(let error):
-                        self.displayErrorMessage(error: error)
+                        self?.removeSpinner()
+                        self?.displayErrorMessage(error: error)
                     }
                     group.leave()
                 }
