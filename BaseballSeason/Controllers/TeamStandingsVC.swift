@@ -48,7 +48,7 @@ class TeamStandingsVC: UIViewController {
                 NetworkLayer.request(endpoint: TeamInfoEndpoint.getStandings(division: division)) { [weak self] (result: Result<Teams, ErrorMessage>) in
                     switch result {
                     case .success(let data):
-                        let standings = PlayerNetworkManager.shared.getDivisionStandings(data: data)
+                        let standings = TeamNetworkManager.shared.getDivisionStandings(data: data)
                         switch division {
                         case Division.alEast:
                             self?.alEastStandings = standings
@@ -148,10 +148,10 @@ class TeamStandingsVC: UIViewController {
                 let storedPlayers = try decoder.decode([FavoritePlayers].self, from: data)
                 PlayerNetworkManager.shared.favorites = storedPlayers
             } catch {
-                print("Could not retrieve favorites")
+                displayErrorMessage(error: .noFavorites)
             }
         }
-    }
+    } 
 }
 
 extension TeamStandingsVC: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
@@ -174,8 +174,8 @@ extension TeamStandingsVC: UICollectionViewDataSource, UICollectionViewDelegateF
         let nlDivisions = [nlEastStandings, nlCentralStandings, nlWestStandings, nlWildCardStandings]
         
         for n in 1...23 {
-            let standingIndex = PlayerNetworkManager.shared.getTeamStandingIndex(currentIndex: n)
-            let divisionIndex = PlayerNetworkManager.shared.getDivisionIndex(currentIndex: n)
+            let standingIndex = TeamNetworkManager.shared.getTeamStandingIndex(currentIndex: n)
+            let divisionIndex = TeamNetworkManager.shared.getDivisionIndex(currentIndex: n)
             
             switch indexPath.item {
             case 6,12,18:

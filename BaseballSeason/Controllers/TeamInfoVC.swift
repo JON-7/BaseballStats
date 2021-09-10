@@ -49,7 +49,7 @@ class TeamInfoVC: UIViewController {
             NetworkLayer.request(endpoint: TeamInfoEndpoint.getFullRoster(teamID: teamID)) { [weak self] (result: Result<RosterResponse, ErrorMessage>) in
                 switch result {
                 case .success(let data):
-                    let roster = PlayerNetworkManager.shared.getTeamRoster(data: data)
+                    let roster = TeamNetworkManager.shared.getTeamRoster(data: data)
                     self?.fullRoster = roster
                 case .failure(let error):
                     self?.displayErrorMessage(error: error)

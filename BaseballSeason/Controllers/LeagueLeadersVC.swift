@@ -63,7 +63,7 @@ class LeagueLeadersVC: UIViewController {
         }
     }
     
-    func getData(for stat: Stat, statType: StatType, completion: @escaping (Result<[LeagueLeaders], Error>) -> ()) {
+    func getData(for stat: Stat, statType: StatType, completion: @escaping (Result<[LeagueLeaders], ErrorMessage>) -> ()) {
         group.enter()
         DispatchQueue.global().async(group: group) {
             NetworkLayer.request(endpoint: LeagueLeaderEndpoint.getLeagueLeaders(stat: stat, statType: statType)) { [weak self] (result: Result<LeadersResponse, ErrorMessage>) in
@@ -72,9 +72,8 @@ class LeagueLeadersVC: UIViewController {
                     let statLeaders = PlayerNetworkManager.shared.getLeagueLeaderArray(data: data, stat: stat, statType: statType)
                     completion(.success(statLeaders))
                     self?.group.leave()
-                case .failure(let error):
-                    print(error)
-                    completion(.failure(error))
+                case .failure(_):
+                    completion(.failure(.noData))
                     self?.group.leave()
                 }
             }

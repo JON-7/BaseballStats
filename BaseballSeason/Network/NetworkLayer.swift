@@ -40,12 +40,7 @@ class NetworkLayer {
                 let responseObject = try decoder.decode(T.self, from: data)
                 completion(.success(responseObject))
             } catch {
-                do {
-                    let responseObject = try JSONDecoder().decode([T].self, from: data)
-                    completion(.success(responseObject as! T))
-                } catch {
-                    completion(.failure(.noResponce))
-                }
+                completion(.failure(.noResponce))
             }
         }.resume()
     }
